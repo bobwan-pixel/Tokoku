@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tokoku - Daftar Produk</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+  <main>
+    <h2>Daftar Buku</h2>
+    <section id="product-list" class="book-list"></section>
+  </main>
+
+  <script src="js/products.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    const productList = document.getElementById('product-list');
+
+    products.forEach(product => {
+      const productCard = document.createElement('article');
+      productCard.className = 'book';
+      productCard.innerHTML = `
+        <a href="product.html?id=${product.id}" class="book-link">
+          <img src="${product.image}" alt="${product.title}" />
+          <h2>${product.title}</h2>
+          <p>Rp ${product.price.toLocaleString('id-ID')}</p>
+        </a>
+        <button class="btn-add-cart" data-id="${product.id}">Tambah ke Keranjang</button>
+      `;
+      productList.appendChild(productCard);
+    });
+
+    // Event listener untuk tombol tambah ke keranjang
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('btn-add-cart') && e.target.tagName === 'BUTTON') {
+        const id = e.target.getAttribute('data-id');
+        let cart = JSON.parse(localStorage.getItem('cart')) || {};
+        if (cart[id]) {
+          cart[id]++;
+        } else {
+          cart[id] = 1;
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+      }
+    });
+  </script><!-- Toast Notification -->
+<div id="toast" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #444;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  transform: translateY(20px);
+  z-index: 9999;
+  font-size: 0.95rem;
+  pointer-events: none;
+">
+  Produk ditambahkan ke keranjang
+</div>
+
+<!-- JS -->
+<script src="js/products.js"></script>
+<script>
+
+      // Tampilkan notifikasi toast
+      showToast('Produk ditambahkan ke keranjang!');
+    }
+  });
+
+  // Fungsi toast
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(20px)';
+    }, 2000); // hilang setelah 2 detik
+  }
+</script>
+  <script>
+  function updateCartBadge() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+    let total = 0;
+    for (const id in cart) {
+      total += cart[id];
+    }
+    const badge = document.getElementById('cart-badge');
+    if (badge) {
+      if (total > 0) {
+        badge.textContent = total;
+        badge.style.display = 'inline-block';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+  // Update badge saat halaman dimuat
+  updateCartBadge();
+  // Update badge setiap kali item ditambahkan ke keranjang
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('btn-add-cart')) {
+      setTimeout(updateCartBadge, 100); // Delay agar localStorage sudah terupdate
+    }
+  });
+  </script>
+  
+  <script>
+fetch('header.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('header-placeholder').innerHTML = data;
+    updateCartBadge(); // supaya badge update setelah header dimuat
+  });
+</script>
+<script>
+  function searchProducts() {
+  const input = document.getElementById('search-input').value.toLowerCase();
+  const productCards = document.querySelectorAll('.book');
+  
+  productCards.forEach(card => {
+    const title = card.querySelector('h2').textContent.toLowerCase();
+    const shouldShow = title.includes(input);
+    
+    // Animasi fade out/in
+    if (!shouldShow) {
+      card.style.opacity = '0';
+      setTimeout(() => {
+        card.classList.add('hidden');
+      }, 300);
+    } else {
+      card.classList.remove('hidden');
+      setTimeout(() => {
+        card.style.opacity = '1';
+      }, 50);
+    }
+  });
+}
+</script>
+<!-- Pastikan products.js di-load sebelum script.js -->
+<script src="js/products.js"></script>
+<script src="js/script.js"></script>
+
+<!-- Verifikasi loading dengan console.log -->
+<script>
+  console.log("Produk:", window.products); // Cek apakah produk terdefinisi
+  console.log("Fungsi displayProducts:", typeof displayProducts); // Cek fungsi
+</script>
+</body>
+</html>
+

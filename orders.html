@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesanan Saya | Tokoku</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/orders.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <!-- TEMPAT HEADER -->
+  <div id="header-placeholder"></div>
+
+  <!-- KONTEN UTAMA (TIDAK BERUBAH) -->
+  <main class="order-container">
+    <h1><i class="fas fa-clipboard-list"></i> Daftar Pesanan</h1>
+    
+    <div class="order-filters">
+      <button class="filter-btn active" data-filter="all">Semua</button>
+      <button class="filter-btn" data-filter="pending">Diproses</button>
+      <button class="filter-btn" data-filter="shipped">Dikirim</button>
+      <button class="filter-btn" data-filter="completed">Selesai</button>
+    </div>
+
+    <div class="orders-list" id="ordersList">
+      <!-- Konten pesanan akan dimuat di sini -->
+    </div>
+  </main>
+
+  <!-- NOTIFIKASI -->
+  <div id="notification" class="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message"></span>
+  </div>
+
+  <!-- LOAD SCRIPTS -->
+  <script src="js/orders.js"></script>
+  
+  <!-- LOAD HEADER + SET ACTIVE MENU -->
+  <script>
+    // Load header
+    fetch('header.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('header-placeholder').innerHTML = html;
+        
+        // Set active menu
+        const navLinks = document.querySelectorAll('.nav-icon');
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href').includes('orders.html')) {
+            link.classList.add('active');
+          }
+        });
+        
+        // Update cart badge
+        updateCartBadge();
+      })
+      .catch(err => console.error('Gagal load header:', err));
+
+    function updateCartBadge() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || {};
+      const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
+      const badge = document.querySelector('.cart-badge');
+      if (badge) {
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'block' : 'none';
+      }
+    }
+  </script>
+</body>
+</html>

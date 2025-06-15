@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detail Produk</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding-bottom: 80px; /* ruang untuk tombol fixed */
+    }
+    header {
+      background-color: #1a1a1a;
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    header h1 {
+      margin: 0;
+      color: #fff;
+    }
+    nav a {
+      color: #ccc;
+      margin-left: 1rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    nav a:hover {
+      color: #fff;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .product-image {
+      flex: 1 1 350px;
+      max-width: 400px;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 15px #000;
+    }
+    .product-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .product-info {
+      flex: 1 1 400px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+    .product-info h2 {
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+      color: #ddd;
+    }
+    .product-info p.description {
+      font-size: 1.1rem;
+      color: #bbb;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .product-info p.price {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #eee;
+      margin-bottom: 2rem;
+    }
+
+    /* Tombol fixed kanan bawah */
+    .fixed-buttons {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      gap: 1rem;
+      z-index: 150;
+    }
+    .fixed-buttons button {
+      background-color: #444;
+      color: #eee;
+      border: none;
+      padding: 1rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 8px #000;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+    .fixed-buttons button:hover {
+      background-color: #666;
+      transform: scale(1.05);
+    }
+    .fixed-buttons .btn-checkout {
+      background-color: #008080;
+    }
+    .fixed-buttons .btn-checkout:hover {
+      background-color: #00a0a0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="header-placeholder"></div>
+
+<main>
+  <div class="product-image" id="product-image">
+    <!-- Gambar produk muncul di sini -->
+  </div>
+
+  <div class="product-info">
+    <h2 id="product-title">Judul Produk</h2>
+    <p class="description" id="product-description">Deskripsi produk di sini</p>
+    <p class="price" id="product-price">Rp 0</p>
+  </div>
+</main>
+
+<div class="fixed-buttons">
+  <button id="btn-add-cart">Tambah ke Keranjang</button>
+  <button id="btn-checkout" class="btn-checkout">Checkout</button>
+</div>
+
+<script src="js/products.js"></script>
+<script>
+  // Ambil ID produk dari URL, misal product.html?id=3
+  const params = new URLSearchParams(window.location.search);
+  const productId = Number(params.get('id'));
+
+  // Cari produk sesuai id
+  const product = products.find(p => p.id === productId);
+
+  if (!product) {
+    document.querySelector('main').innerHTML = '<p>Produk tidak ditemukan.</p>';
+  } else {
+    // Data produk tampilkan
+    document.getElementById('product-image').innerHTML = `<img src="${product.image}" alt="${product.title}" />`;
+    document.getElementById('product-title').textContent = product.title;
+    document.getElementById('product-price').textContent = 'Rp ' + product.price.toLocaleString('id-ID');
+
+    // Deskripsi khusus tiap produk (bisa kamu sesuaikan)
+    const descriptions = {
+      1: '"The Psychology of Money" karya Morgan Housel adalah buku self-development yang membahas bagaimana psikologi mempengaruhi keputusan keuangan kita. Buku ini tidak sekadar membahas pengelolaan keuangan, melainkan juga membahas bagaimana emosi, sikap, dan pengalaman masa lalu kita mempengaruhi cara kita berinteraksi dengan uang dan berinvestasi. ',
+      2: 'The Art of Living adalah panduan abadi yang menyaring ajaran Stoik dari filsuf Yunani kuno, Epictetus, menjadi nasihat praktis untuk kehidupan modern. Dengan gaya yang ringkas namun penuh makna, buku ini mengajak pembaca untuk menata hidup berdasarkan kebajikan, ketenangan batin, dan kebebasan sejati.',
+      3: 'Buku Is It Bad or Good Habits? mengajak pembaca, terutama anak-anak dan remaja, untuk mengenali berbagai kebiasaan sehari-hari—mana yang baik untuk dibentuk, dan mana yang sebaiknya dihindari. Dengan ilustrasi menarik dan penjelasan yang sederhana, buku ini memberikan pemahaman tentang pentingnya memilih kebiasaan yang membentuk karakter positif, seperti disiplin, jujur, dan peduli sesama.',
+      4: 'The Principles of Power adalah buku yang membahas prinsip-prinsip dasar di balik kekuasaan, pengaruh, dan kepemimpinan. Buku ini mengungkap cara berpikir dan strategi yang digunakan oleh tokoh-tokoh berpengaruh dalam sejarah—baik di bidang politik, bisnis, maupun kehidupan pribadi.'
+    };
+    document.getElementById('product-description').textContent = descriptions[productId] || 'Deskripsi produk belum tersedia.';
+  }
+
+  // Tombol tambah ke keranjang
+  document.getElementById('btn-add-cart').addEventListener('click', () => {
+    let cart = JSON.parse(localStorage.getItem('cart')) || {};
+    if (cart[productId]) {
+      cart[productId]++;
+    } else {
+      cart[productId] = 1;
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert('Produk berhasil ditambahkan ke keranjang!');
+  });
+
+  // Tombol checkout langsung ke halaman checkout
+  document.getElementById('btn-checkout').addEventListener('click', () => {
+    window.location.href = 'checkout.html';
+  });
+</script>
+
+<script>
+fetch('header.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('header-placeholder').innerHTML = data;
+    updateCartBadge(); // supaya badge update setelah header dimuat
+  });
+</script>
+
+
+</body>
+</html>

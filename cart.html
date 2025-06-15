@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tokoku - Keranjang</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    /* Modern Cart Styles */
+    .cart-container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .cart-title {
+      font-size: 1.8rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .cart-title i {
+      font-size: 1.5rem;
+    }
+    
+    .cart-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #1e1e1e;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .cart-table th {
+      background: #2a2a2a;
+      color: #fff;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+    }
+    
+    .cart-table td {
+      padding: 1.2rem 1rem;
+      border-bottom: 1px solid #333;
+      color: #e0e0e0;
+    }
+    
+    .cart-table tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .product-cell {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .product-img {
+      width: 60px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: #333;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    
+    .quantity-btn:hover {
+      background: #444;
+    }
+    
+    .quantity-value {
+      min-width: 30px;
+      text-align: center;
+    }
+    
+    .remove-btn {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      cursor: pointer;
+      margin-left: 1rem;
+      transition: color 0.2s;
+    }
+    
+    .remove-btn:hover {
+      color: #ff6b6b;
+    }
+    
+    .cart-summary {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .total-price {
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: 600;
+    }
+    
+    .total-price span {
+      color: #27ae60;
+    }
+    
+    .checkout-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .checkout-btn:hover {
+      background: #2ecc71;
+    }
+    
+    .empty-cart {
+      text-align: center;
+      padding: 3rem 0;
+      color: #aaa;
+    }
+    
+    .empty-cart i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: #555;
+    }
+    
+    .continue-shopping {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #3498db;
+      text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+      .cart-table {
+        display: block;
+        overflow-x: auto;
+      }
+      
+      .product-cell {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .cart-summary {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Tempat header -->
+<div id="header-placeholder"></div>
+
+<!-- Main content -->
+<main class="cart-container">
+  <div class="cart-header">
+    <h1 class="cart-title">
+      <i class="fas fa-shopping-cart"></i> Keranjang Belanja
+    </h1>
+  </div>
+
+  <div id="cart-content">
+    <!-- Konten keranjang akan dimuat di sini -->
+  </div>
+</main>
+
+<!-- Load products.js dan cart.js -->
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+
+<!-- Load header + updateCartBadge -->
+<script>
+fetch('header.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('header-placeholder').innerHTML = data;
+    updateCartBadge();
+  });
+</script>
+
+<!-- Script keranjang yang diperbarui -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  const cartContent = document.getElementById('cart-content');
+  
+  // Jika keranjang kosong
+  if (Object.keys(cart).length === 0) {
+    cartContent.innerHTML = `
+      <div class="empty-cart">
+        <i class="fas fa-shopping-cart"></i>
+        <h3>Keranjang Belanja Kosong</h3>
+        <p>Belum ada produk yang ditambahkan ke keranjang</p>
+        <a href="index.html" class="continue-shopping">Lanjut Belanja</a>
+      </div>
+    `;
+    return;
+  }
+
+  // Hitung total dan buat tabel
+  let total = 0;
+  let tableHTML = `
+    <table class="cart-table">
+      <thead>
+        <tr>
+          <th>Produk</th>
+          <th>Harga</th>
+          <th>Jumlah</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  Object.keys(cart).forEach(productId => {
+    const product = products.find(p => p.id == productId);
+    if (!product) {
+      console.warn('Produk tidak ditemukan untuk ID:', productId);
+      return;
+    }
+
+    const quantity = cart[productId];
+    const productTotal = product.price * quantity;
+    total += productTotal;
+
+    tableHTML += `
+      <tr>
+        <td>
+          <div class="product-cell">
+            <img src="${product.image}" alt="${product.title}" class="product-img">
+            <span>${product.title}</span>
+          </div>
+        </td>
+        <td>Rp ${product.price.toLocaleString('id-ID')}</td>
+        <td>
+          <div class="quantity-control">
+            <button class="quantity-btn decrease" data-id="${productId}">-</button>
+            <span class="quantity-value">${quantity}</span>
+            <button class="quantity-btn increase" data-id="${productId}">+</button>
+            <button class="remove-btn" data-id="${productId}" title="Hapus">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </td>
+        <td>Rp ${productTotal.toLocaleString('id-ID')}</td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `
+      </tbody>
+    </table>
+    <div class="cart-summary">
+      <div class="total-price">
+        Total: <span>Rp ${total.toLocaleString('id-ID')}</span>
+      </div>
+      <button class="checkout-btn" onclick="goToCheckout()">
+        <i class="fas fa-credit-card"></i> Bayar Sekarang
+      </button>
+    </div>
+  `;
+
+  cartContent.innerHTML = tableHTML;
+
+  // Event listeners untuk tombol
+  cartContent.addEventListener('click', (e) => {
+    const target = e.target.closest('.quantity-btn') || e.target.closest('.remove-btn');
+    if (!target) return;
+
+    const productId = target.getAttribute('data-id');
+    
+    if (target.classList.contains('increase')) {
+      cart[productId]++;
+    } 
+    else if (target.classList.contains('decrease')) {
+      if (cart[productId] > 1) {
+        cart[productId]--;
+      } else {
+        if (confirm('Hapus produk dari keranjang?')) {
+          delete cart[productId];
+        } else {
+          return;
+        }
+      }
+    }
+    else if (target.classList.contains('remove-btn')) {
+      if (confirm('Hapus produk dari keranjang?')) {
+        delete cart[productId];
+      } else {
+        return;
+      }
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartBadge();
+    location.reload();
+  });
+});
+
+function updateCartBadge() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  let totalItems = 0;
+  
+  for (const id in cart) {
+    totalItems += cart[id];
+  }
+  
+  const badge = document.getElementById('cart-badge');
+  if (badge) {
+    badge.textContent = totalItems;
+    badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
+  }
+}
+
+function goToCheckout() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  if (Object.keys(cart).length === 0) {
+    alert('Keranjang belanja kosong!');
+    return;
+  }
+  window.location.href = 'checkout.html';
+}
+</script>
+
+</body>
+</html>
