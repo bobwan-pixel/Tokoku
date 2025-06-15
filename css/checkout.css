@@ -1,0 +1,144 @@
+/* Checkout Modern Styles */
+.checkout-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 992px) {
+  .checkout-container {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.checkout-section {
+  background: #1e1e1e;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title i {
+  color: #27ae60;
+}
+
+/* Form Styles */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-label {
+  display: block;
+  color: #e0e0e0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #2a2a2a;
+  color: #fff;
+  font-size: 1rem;
+  transition: border 0.3s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #27ae60;
+}
+
+/* Order Summary */
+.order-summary {
+  position: sticky;
+  top: 20px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #333;
+  color: #e0e0e0;
+}
+
+.order-total {
+  font-weight: 600;
+  color: #27ae60;
+  font-size: 1.2rem;
+}
+
+/* Payment Methods */
+.payment-method {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem;
+  border: 1px solid #333;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #e0e0e0;
+}
+
+.payment-method:hover {
+  border-color: #27ae60;
+}
+
+.payment-method.selected {
+  border-color: #27ae60;
+  background: rgba(39, 174, 96, 0.1);
+}
+
+.payment-icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Submit Button */
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1.5rem;
+}
+
+.submit-btn:hover {
+  background: #2ecc71;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .checkout-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .order-summary {
+    position: static;
+  }
+}
