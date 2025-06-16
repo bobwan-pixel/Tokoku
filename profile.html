@@ -1,39 +1,57 @@
-<!-- Firebase SDK --><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script><script src="js/auth-firebase.js"></script><script>
-  // Inisialisasi Firebase User dari Firebase Auth
-  document.addEventListener('DOMContentLoaded', function () {
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil | Tokoku</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; }
+    .profile-container {
+      max-width: 500px;
+      background: white;
+      margin: 100px auto;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button { padding: 10px 20px; background: crimson; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="profile-container" id="profilePage" style="display: none;">
+    <h2>Profil Saya</h2>
+    <p><strong>Nama:</strong> <span id="userName">-</span></p>
+    <p><strong>Email:</strong> <span id="email">-</span></p>
+    <p><strong>Bergabung sejak:</strong> <span id="joinDate">-</span></p>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  <script src="js/auth-firebase.js"></script>
+
+  <script>
     firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
-        alert('Anda belum login. Silakan login dulu.');
-        window.location.href = 'login.html';
+        alert('Anda belum login!');
+        window.location.href = "auth/login.html";
         return;
       }
 
-      // Set data dasar user
-      document.getElementById('userName').textContent = user.displayName || 'Pengguna Tokoku';
-      document.getElementById('joinDate').textContent = formatDate(user.metadata.creationTime);
-      document.getElementById('email').value = user.email;
+      document.getElementById("userName").textContent = user.displayName || "-";
+      document.getElementById("email").textContent = user.email;
+      document.getElementById("joinDate").textContent = new Date(user.metadata.creationTime).toLocaleDateString("id-ID");
 
-      // Tampilkan halaman
-      showContent();
-      initEvents();
+      document.getElementById("profilePage").style.display = "block";
     });
-  });
 
-  function showContent() {
-    document.getElementById('loadingScreen').style.opacity = '0';
-    setTimeout(() => {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('profilePage').style.display = 'block';
-    }, 300);
-  }
-
-  function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('id-ID', options);
-  }
-
-  function initEvents() {
-    // Tombol logout
-    document.getElementById('logoutBtn').addEventListener('click', logout);
-  }
-</script>
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "auth/login.html";
+      });
+    }
+  </script>
+</body>
+</html>
