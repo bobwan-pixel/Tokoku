@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kelola Produk | Admin Tokoku</title>
+  <link rel="stylesheet" href="../css/admin.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    form button {
+      margin-top: 15px;
+      padding: 10px 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 30px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    img {
+      max-width: 60px;
+      border-radius: 4px;
+    }
+    .actions button {
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Manajemen Produk</h1>
+
+  <!-- Form Tambah/Edit Produk -->
+  <form id="productForm">
+    <input type="hidden" id="productIndex" />
+    
+    <label for="productName">Nama Produk:</label>
+    <input type="text" id="productName" required />
+
+    <label for="productPrice">Harga (Rp):</label>
+    <input type="number" id="productPrice" required />
+
+    <label for="productDescription">Deskripsi:</label>
+    <textarea id="productDescription" required></textarea>
+
+    <label for="productImage">URL Gambar Produk:</label>
+    <input type="text" id="productImage" placeholder="https://..." required />
+
+    <button type="submit">Simpan Produk</button>
+  </form>
+
+  <!-- Tabel Daftar Produk -->
+  <table>
+    <thead>
+      <tr>
+        <th>Gambar</th>
+        <th>Nama</th>
+        <th>Harga</th>
+        <th>Deskripsi</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="productTableBody"></tbody>
+  </table>
+
+  <script>
+    const PRODUCTS_KEY = 'tokoku_products';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+      document.getElementById('productForm').addEventListener('submit', saveProduct);
+    });
+
+    function loadProducts() {
+      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+      const tbody = document.getElementById('productTableBody');
+      tbody.innerHTML = '';
+
+      products.forEach((product, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img src="${product.image}" alt="${product.name}" /></td>
+          <td>${product.name}</td>
+          <td>Rp ${product.price.toLocaleString('id-ID')}</td>
+          <td>${product.description}</td>
+          <td class="actions">
+            <button onclick="editProduct(${index})">Edit</button>
+            <button onclick="deleteProduct(${index})">Hapus</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function saveProduct(e) {
+      e.preventDefault();
+      const index = document.getElementById('productIndex').value;
+      const name = document.getElementById('productName').value;
+      const price = parseInt(document.getElementById('productPrice').value);
+      const description = document.getElementById('productDescription').value;
+      const image = document.getElementById('productImage').value;
+
+      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+      const newProduct = { name, price, description, image };
+
+      if (index !== '') {
+        products[parseInt(index)] = newProduct;
+      } else {
+        products.push(newProduct);
+      }
+
+      localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+      document.getElementById('productForm').reset();
+      document.getElementById('productIndex').value = '';
+      loadProducts();
+    }
+
+    function editProduct(index) {
+      const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+      const product = products[index];
+
+      document.getElementById('productIndex').value = index;
+      document.getElementById('productName').value = product.name;
+      document.getElementById('productPrice').value = product.price;
+      document.getElementById('productDescription').value = product.description;
+      document.getElementById('productImage').value = product.image;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteProduct(index) {
+      if (confirm('Yakin ingin menghapus produk ini?')) {
+        const products = JSON.parse(localStorage.getItem(PRODUCTS_KEY)) || [];
+        products.splice(index, 1);
+        localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products));
+        loadProducts();
+      }
+    }
+  </script>
+
+</body>
+</html>
