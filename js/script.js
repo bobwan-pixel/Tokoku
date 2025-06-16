@@ -1,84 +1,81 @@
-// js/cart.js
+// script.js - Improved Version
 
-// Ambil tombol tambah keranjang
-const buttons = document.querySelectorAll('.btn-add-cart');
+// Add these utility functions
+async function loadComponent(componentId, url) {
+  try {
+    const container = document.getElementById(componentId);
+    if (!container) throw new Error(`Container ${componentId} not found`);
+    
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to load ${url}`);
+    
+    container.innerHTML = await response.text();
+    return true;
+  } catch (error) {
+    console.error(`Error loading ${componentId}:`, error);
+    throw error;
+  }
+}
 
-// Ambil data keranjang dari localStorage atau inisialisasi baru
+function showLoading(show = true) {
+  const loader = document.getElementById('global-loader') || createGlobalLoader();
+  loader.style.display = show ? 'flex' : 'none';
+}
+
+function createGlobalLoader() {
+  const loader = document.createElement('div');
+  loader.id = 'global-loader';
+  loader.innerHTML = `
+    <div class="loader-spinner"></div>
+    <p class="loader-text">Memuat...</p>
+  `;
+  document.body.appendChild(loader);
+  return loader;
+}
+
+// Modified header loading
+async function loadDynamicHeader() {
+  showLoading(true);
+  try {
+    await loadComponent('header-container', 'header.html');
+    initializeHeaderEvents();
+    updateCartBadge();
+  } catch (error) {
+    showError('Gagal memuat header', error);
+  } finally {
+    showLoading(false);
+  }
+}
+
+// Enhanced cart functionality
 let cart = JSON.parse(localStorage.getItem('cart')) || {};
 
-// Fungsi simpan keranjang ke localStorage
-function saveCart() {
-  localStorage.setItem('cart', JSON.stringify(cart));
-}
-
-// Fungsi tambah item ke keranjang
-function addToCart(id) {
-  if (cart[id]) {
-    cart[id]++;
-  } else {
-    cart[id] = 1;
+function persistCart() {
+  try {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  } catch (error) {
+    if (error.name === 'QuotaExceededError') {
+      showError('Penyimpanan penuh. Beberapa fitur mungkin tidak berfungsi');
+    }
   }
-  saveCart();
-  alert('Berhasil ditambahkan ke keranjang!');
 }
 
-// Pasang event click ke semua tombol tambah keranjang
-buttons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const id = btn.getAttribute('data-id');
-    addToCart(id);
+// New error handling
+function showError(message, error = null) {
+  console.error(message, error);
+  
+  const toast = document.createElement('div');
+  toast.className = 'error-toast';
+  toast.innerHTML = `
+    <i class="fas fa-exclamation-circle"></i>
+    <span>${message}</span>
+    <button class="toast-close">&times;</button>
+  `;
+  
+  document.body.appendChild(toast);
+  toast.querySelector('.toast-close').addEventListener('click', () => {
+    toast.remove();
   });
-});
-// Fungsi Pencarian
-function setupSearch() {
-  const searchButton = document.getElementById('search-button');
-  const searchInput = document.getElementById('search-input');
-
-  function performSearch() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    
-    if (searchTerm === '') {
-      displayProducts(products);
-      document.querySelector('main h2').textContent = 'Koleksi Buku Terbaru';
-      return;
-    }
-    
-    const filteredProducts = products.filter(product => 
-      product.title.toLowerCase().includes(searchTerm) || 
-      product.description.toLowerCase().includes(searchTerm)
-    );
-    
-    displaySearchResults(filteredProducts, searchTerm);
-  }
-
-  function displaySearchResults(results, searchTerm) {
-    const mainContent = document.querySelector('main');
-    
-    if (results.length === 0) {
-      mainContent.innerHTML = `
-        <div class="no-results">
-          <h2>Tidak ditemukan hasil untuk "${searchTerm}"</h2>
-          <p>Coba dengan kata kunci lain</p>
-        </div>
-      `;
-      return;
-    }
-    
-    let html = '<h2>Hasil Pencarian untuk "' + searchTerm + '"</h2><div class="book-list" id="book-list"></div>';
-    mainContent.innerHTML = html;
-    displayProducts(results);
-  }
-
-  searchButton.addEventListener('click', performSearch);
-  searchInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      performSearch();
-    }
-  });
+  
+  setTimeout(() => toast.remove(), 5000);
 }
-
-// Panggil fungsi setupSearch setelah DOM loaded
-document.addEventListener('DOMContentLoaded', function() {
-  // ... kode yang sudah ada ...
-  setupSearch();
-});
