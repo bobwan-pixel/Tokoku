@@ -1,48 +1,136 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="id">
 <head>
-  <title>Registrasi Admin | Tokoku</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar | Tokoku</title>
   <link rel="stylesheet" href="../css/auth.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="auth-container">
-    <h1><i class="fas fa-user-shield"></i> Registrasi Admin</h1>
-    <form id="registerForm">
-      <input type="email" id="email" placeholder="Email admin" required>
-      <input type="password" id="password" placeholder="Buat password" minlength="8" required>
-      <input type="password" id="confirmPassword" placeholder="Konfirmasi password" required>
-      <button type="submit"><i class="fas fa-save"></i> Daftarkan Admin</button>
-    </form>
-    <p class="notice">* Halaman ini hanya bisa diakses sekali</p>
+    <div class="auth-illustration">
+      <img src="../asset/img/register-illustration.svg" alt="Register Illustration">
+      <h2>Bergabunglah Bersama Kami!</h2>
+      <p>Sudah punya akun? <a href="login.html">Masuk disini</a></p>
+    </div><div class="auth-form">
+  <div class="auth-brand">
+    <img src="../asset/img/logo.svg" alt="Tokoku Logo" class="logo">
+    <h1>Buat Akun Baru</h1>
   </div>
 
-  <script src="../js/auth.js"></script>
-  <script>
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  <form id="registerForm">
+    <div class="input-group">
+      <label for="name">Nama Lengkap</label>
+      <div class="input-field">
+        <i class="fas fa-user"></i>
+        <input type="text" id="name" placeholder="Nama anda" required>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label for="email">Email</label>
+      <div class="input-field">
+        <i class="fas fa-envelope"></i>
+        <input type="email" id="email" placeholder="contoh@email.com" required>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label for="password">Password</label>
+      <div class="input-field">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="password" placeholder="Min. 8 karakter" required>
+        <button type="button" class="toggle-password">
+          <i class="fas fa-eye"></i>
+        </button>
+      </div>
+      <div class="password-strength">
+        <span class="strength-bar"></span>
+        <span class="strength-bar"></span>
+        <span class="strength-bar"></span>
+        <span class="strength-text">Kekuatan password</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label for="confirmPassword">Konfirmasi Password</label>
+      <div class="input-field">
+        <i class="fas fa-lock"></i>
+        <input type="password" id="confirmPassword" placeholder="Ketik ulang password" required>
+      </div>
+    </div>
+
+    <div class="terms-agreement">
+      <input type="checkbox" id="agreeTerms" required>
+      <label for="agreeTerms">Saya menyetujui <a href="#">Syarat & Ketentuan</a> dan <a href="#">Kebijakan Privasi</a></label>
+    </div>
+
+    <button type="submit" class="btn-auth">
+      <span>Daftar Sekarang</span>
+      <i class="fas fa-user-plus"></i>
+    </button>
+  </form>
+</div>
+
+  </div>  <!-- Firebase SDK -->  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>  <script src="../js/auth-firebase.js"></script>  <script>
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', function() {
+        const input = this.parentElement.querySelector('input');
+        const icon = this.querySelector('i');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    });
+
+    document.getElementById('password').addEventListener('input', function () {
+      const password = this.value;
+      const strengthBars = document.querySelectorAll('.strength-bar');
+      const strengthText = document.querySelector('.strength-text');
+
+      let strength = 0;
+      if (password.length > 0) strength++;
+      if (password.length >= 8) strength++;
+      if (/[A-Z]/.test(password) && /[0-9]/.test(password)) strength++;
+
+      strengthBars.forEach((bar, index) => {
+        bar.style.backgroundColor = index < strength ?
+          (strength === 1 ? '#ff4d4d' : strength === 2 ? '#ffa500' : '#4CAF50') : '#e0e0e0';
+      });
+
+      strengthText.textContent =
+        strength === 0 ? '' :
+        strength === 1 ? 'Lemah' :
+        strength === 2 ? 'Sedang' : 'Kuat';
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async function (e) {
       e.preventDefault();
-      
+
+      const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
 
       if (password !== confirmPassword) {
-        return alert('Password tidak sama!');
+        alert('Password tidak cocok!');
+        return;
       }
 
       try {
-        const hashedPassword = await hashPassword(password);
-        registerAdmin(email, hashedPassword);
-        alert('Registrasi berhasil! Silahkan login');
-        window.location.href = 'login.html';
+        await firebase.auth().createUserWithEmailAndPassword(email, password);
+        const user = firebase.auth().currentUser;
+        await user.updateProfile({ displayName: name });
+        alert('Pendaftaran berhasil!');
+        window.location.href = 'profile.html';
       } catch (error) {
-        alert(`Error: ${error.message}`);
+        alert('Gagal daftar: ' + error.message);
       }
     });
-
-    // Blokir akses jika admin sudah terdaftar
-    if (localStorage.getItem('tokoku_admin_data')) {
-      window.location.href = 'login.html';
-    }
-  </script>
-</body>
+  </script></body>
 </html>
