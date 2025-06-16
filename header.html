@@ -4,10 +4,11 @@
   </div>
 
   <nav class="header-right">
-    <a href="index.html" class="nav-icon">
-      <img src="https://img.icons8.com/?size=100&id=53382&format=png&color=A1A1A1" alt="Beranda" style="height: 25px; width: 25px;"/>
-      <span class="tooltip">Beranda</span>
-    </a>
+<!-- Ganti bagian nav-icon profil menjadi: -->
+<a href="profile.html" class="nav-icon" id="profile-link">
+  <img src="https://img.icons8.com/?size=100&id=108652&format=png&color=A1A1A1" alt="Profil" style="height: 25px; width: 25px;">
+  <span class="tooltip">Profil</span>
+</a>
     <a href="cart.html" class="nav-icon" style="position: relative;">
       <img src="https://img.icons8.com/?size=100&id=2616&format=png&color=A1A1A1" alt="Keranjang" style="height: 25px; width: 25px;">
       <span class="cart-badge" id="cart-badge">0</span>
@@ -216,4 +217,20 @@
       badge.style.display = totalItems > 0 ? 'block' : 'none';
     }
   }
+</script>
+
+<script>
+  // Pastikan ini ada di script header
+  document.getElementById('profile-link')?.addEventListener('click', function(e) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    
+    // Cek apakah user sudah login
+    if (!user?.isLoggedIn) {
+      e.preventDefault(); // Stop navigasi default
+      if (confirm('Anda perlu login untuk mengakses profil. Login sekarang?')) {
+        window.location.href = 'auth/login.html';
+      }
+    }
+    // Jika sudah login, biarkan link bekerja normal
+  });
 </script>
