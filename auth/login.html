@@ -7,19 +7,7 @@
   <link rel="stylesheet" href="../css/login.css" />
 </head>
 <body>
-
-  <!-- ✅ Tambahkan ini di atas konten -->
-  <script type="module">
-    import { auth } from "../js/auth-firebase.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.replace("../profile.html");
-      }
-    });
-  </script>
-
+  <!-- Container Login -->
   <div class="login-container">
     <h2>Masuk ke Tokoku</h2>
 
@@ -36,9 +24,34 @@
     <button id="login-btn" class="btn-login">🔐 Masuk</button>
 
     <p class="register-link">
-      Belum punya akun? <a href="register.html">Daftar di sini</a>
+      Belum punya akun?
+      <a href="register.html">Daftar di sini</a>
     </p>
   </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    window.showToast = function(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    };
+  </script>
+
+  <!-- Cegah akses login jika sudah login -->
+  <script type="module">
+    import { auth } from "../js/auth-firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.replace("../profile.html");
+      }
+    });
+  </script>
 
   <!-- Script login utama -->
   <script type="module" src="../js/login.js"></script>

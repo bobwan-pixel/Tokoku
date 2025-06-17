@@ -4,11 +4,12 @@
   <meta charset="UTF-8" />
   <title>Daftar - Tokoku</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="../css/register.css" />
+  <link rel="stylesheet" href="../css/login.css" />
 </head>
 <body>
-  <div class="register-container">
-    <h2>Daftar Akun Tokoku</h2>
+  <!-- Register Container -->
+  <div class="login-container">
+    <h2>Buat Akun Tokoku</h2>
 
     <div class="form-group">
       <input type="email" id="email" required />
@@ -16,22 +17,34 @@
     </div>
 
     <div class="form-group">
-      <input type="password" id="password" required minlength="6" />
+      <input type="password" id="password" required />
       <label for="password">Kata Sandi</label>
     </div>
 
     <div class="form-group">
       <input type="password" id="confirm-password" required />
-      <label for="confirm-password">Ulangi Kata Sandi</label>
+      <label for="confirm-password">Konfirmasi Sandi</label>
     </div>
 
-    <button id="register-btn" class="btn-register">📝 Daftar</button>
+    <button id="register-btn" class="btn-login">📝 Daftar</button>
 
-    <p class="login-link">
+    <p class="register-link">
       Sudah punya akun?
       <a href="login.html">Masuk di sini</a>
     </p>
   </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    window.showToast = function(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    };
+  </script>
 
   <script type="module" src="../js/register.js"></script>
 </body>
