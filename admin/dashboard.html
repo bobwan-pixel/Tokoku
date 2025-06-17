@@ -7,8 +7,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+  <!-- Header dinamis -->
   <div id="header-placeholder"></div>
 
+  <!-- Konten dashboard -->
   <main class="admin-dashboard">
     <h1><i class="fas fa-tachometer-alt"></i> Dashboard Admin</h1>
     
@@ -37,23 +39,26 @@
     </div>
   </main>
 
-  <script src="../js/auth.js"></script>
-  <script>
-    // Cek login & role admin
-    const user = getCurrentSession?.(); // gunakan fungsi dari auth.js
-    if (!user || user.role !== 'admin') {
-      alert('Akses ditolak!');
-      window.location.href = '../index.html';
-    }
+  <!-- ✅ Firebase Auth check & Header load -->
+  <script type="module">
+    import { auth } from "../js/auth-firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const adminEmail = "terepandu@gmail.com";
+
+    // Cek login dan hanya admin boleh akses
+    onAuthStateChanged(auth, (user) => {
+      if (!user || user.email !== adminEmail) {
+        alert("Akses ditolak! Halaman ini hanya untuk admin.");
+        window.location.href = "../index.html";
+      }
+    });
 
     // Load header
-    fetch('../header.html')
-      .then(res => res.text())
-      .then(data => {
-        document.getElementById('header-placeholder').innerHTML = data;
-      });
+    import { loadHeader } from "../js/template.js";
+    loadHeader();
 
-    // Load statistik
+    // Statistik dummy sementara
     const orders = JSON.parse(localStorage.getItem('tokoku_orders') || '[]');
     const users = JSON.parse(localStorage.getItem('tokoku_users') || '[]');
 
