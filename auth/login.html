@@ -2,89 +2,45 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login | Tokoku</title>
-  <link rel="stylesheet" href="../css/auth.css"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <title>Login - Tokoku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../css/login.css" />
 </head>
 <body>
-  <div class="auth-container">
-    <div class="auth-illustration">
-      <img src="../asset/img/login-illustration.svg" alt="Login Illustration"/>
-      <h2>Selamat Datang Kembali!</h2>
-      <p>Belum punya akun? <a href="register.html">Daftar disini</a></p>
-    </div>
 
-    <div class="auth-form">
-      <div class="auth-brand">
-        <img src="../asset/img/logo.svg" alt="Tokoku Logo" class="logo"/>
-        <h1>Masuk ke Akun Anda</h1>
-      </div>
+  <!-- ✅ Tambahkan ini di atas konten -->
+  <script type="module">
+    import { auth } from "../js/auth-firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-      <form id="loginForm">
-        <div class="input-group">
-          <label for="email">Email</label>
-          <div class="input-field">
-            <i class="fas fa-envelope"></i>
-            <input type="email" id="email" required placeholder="email@example.com"/>
-          </div>
-        </div>
-
-        <div class="input-group">
-          <label for="password">Password</label>
-          <div class="input-field">
-            <i class="fas fa-lock"></i>
-            <input type="password" id="password" required placeholder="Min. 8 karakter"/>
-            <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-auth">
-          <span>Masuk</span>
-          <i class="fas fa-arrow-right"></i>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-  <script src="../js/auth-firebase.js"></script>
-
-  <script>
-    document.querySelector('.toggle-password').addEventListener('click', function () {
-      const input = document.getElementById('password');
-      const icon = this.querySelector('i');
-      input.type = input.type === 'password' ? 'text' : 'password';
-      icon.classList.toggle('fa-eye');
-      icon.classList.toggle('fa-eye-slash');
-    });
-
-    document.getElementById('loginForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const btn = this.querySelector('button[type=\"submit\"]');
-      btn.innerHTML = '<i class=\"fas fa-spinner fa-spin\"></i> Masuk...';
-      btn.disabled = true;
-
-      try {
-        const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-
-        const adminEmails = ["admin@tokoku.com"];
-        if (adminEmails.includes(user.email)) {
-          window.location.href = "../admin/dashboard.html";
-        } else {
-          window.location.href = "../profile.html";
-        }
-      } catch (err) {
-        alert('Login gagal: ' + err.message);
-        btn.innerHTML = '<span>Masuk</span><i class=\"fas fa-arrow-right\"></i>';
-        btn.disabled = false;
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.replace("../profile.html");
       }
     });
   </script>
+
+  <div class="login-container">
+    <h2>Masuk ke Tokoku</h2>
+
+    <div class="form-group">
+      <input type="email" id="email" required />
+      <label for="email">Email</label>
+    </div>
+
+    <div class="form-group">
+      <input type="password" id="password" required />
+      <label for="password">Kata Sandi</label>
+    </div>
+
+    <button id="login-btn" class="btn-login">🔐 Masuk</button>
+
+    <p class="register-link">
+      Belum punya akun? <a href="register.html">Daftar di sini</a>
+    </p>
+  </div>
+
+  <!-- Script login utama -->
+  <script type="module" src="../js/login.js"></script>
 </body>
 </html>
