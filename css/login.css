@@ -1,89 +1,103 @@
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #1e1e1e, #2b2b2b);
+  background: linear-gradient(to right, #1a1a1a, #2c2c2c);
+  color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  color: white;
 }
 
 .login-container {
-  background: #2a2a2a;
+  background-color: #2c2c2c;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  max-width: 350px;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  max-width: 400px;
   width: 90%;
   text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
-.login-container h2 {
-  margin-bottom: 1.5rem;
+h2 {
+  margin-bottom: 1rem;
 }
 
 .form-group {
   position: relative;
-  margin-bottom: 1.8rem;
+  margin: 1.5rem 0;
 }
 
-.form-group input {
+input {
   width: 100%;
-  padding: 0.8rem;
-  background: transparent;
+  padding: 0.75rem;
   border: none;
-  border-bottom: 2px solid #ccc;
-  color: white;
+  border-radius: 8px;
+  background: #1f1f1f;
+  color: #fff;
   font-size: 1rem;
-  outline: none;
 }
 
-.form-group label {
+label {
   position: absolute;
-  left: 0;
-  top: 10px;
-  font-size: 0.9rem;
+  top: -10px;
+  left: 10px;
+  font-size: 0.85rem;
   color: #aaa;
-  transition: 0.3s ease all;
-  pointer-events: none;
-}
-
-.form-group input:focus + label,
-.form-group input:valid + label {
-  top: -12px;
-  font-size: 0.75rem;
-  color: #ffca28;
+  background-color: #2c2c2c;
+  padding: 0 5px;
 }
 
 .btn-login {
-  width: 100%;
-  padding: 0.8rem;
   background: #6200ea;
+  color: white;
+  padding: 0.7rem 1.5rem;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
-  color: white;
   cursor: pointer;
+  margin-top: 1rem;
   transition: background 0.3s ease;
 }
 
 .btn-login:hover {
-  background: #7e3ff2;
+  background: #7e33ff;
 }
 
 .register-link {
-  margin-top: 1.2rem;
+  margin-top: 1.5rem;
   font-size: 0.9rem;
-  color: #ccc;
 }
 
 .register-link a {
-  color: #ffca28;
+  color: #ffb74d;
   text-decoration: none;
 }
 
 .register-link a:hover {
   text-decoration: underline;
+}
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #e53935;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  display: none;
+  z-index: 1000;
+}
+
+.toast.show {
+  display: block;
+  animation: fadeInOut 3s ease forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(20px); }
 }

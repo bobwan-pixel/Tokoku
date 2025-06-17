@@ -4,9 +4,16 @@ body {
   background: linear-gradient(to right, #1e1e1e, #2c2c2c);
   color: #fff;
   display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.profile-wrapper {
+  display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  flex: 1;
+  padding: 2rem 1rem;
 }
 
 .profile-card {
@@ -15,14 +22,21 @@ body {
   border-radius: 16px;
   box-shadow: 0 0 20px rgba(0,0,0,0.3);
   max-width: 400px;
-  width: 90%;
+  width: 100%;
   text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .profile-avatar {
   width: 80px;
   height: 80px;
   margin-bottom: 1rem;
+  border-radius: 50%;
 }
 
 h1 {
@@ -64,37 +78,13 @@ p {
   color: #ffb300;
   margin-bottom: 10px;
 }
-body {
-  font-family: sans-serif;
-  background: #f4f4f4;
-  padding: 40px;
-  text-align: center;
-}
-.box {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  max-width: 500px;
-  margin: auto;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-.btn {
-  margin: 10px 5px;
-  padding: 10px 20px;
-  border: none;
-  background: #6200ea;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.btn.secondary {
-  background: gray;
-}
-input[type="email"] {
-  padding: 8px;
-  width: 80%;
-  margin-top: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 1.2rem;
+  }
+  .btn {
+    width: 100%;
+    margin: 0.4rem 0;
+  }
 }
