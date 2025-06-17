@@ -7,17 +7,20 @@
   <link rel="stylesheet" href="css/profile.css" />
 </head>
 <body>
-  <!-- 🔼 Header -->
+  <!-- ✅ Header -->
   <div id="header-placeholder"></div>
+
+  <!-- ✅ Muat header dari template.js -->
   <script type="module">
     import { loadHeader } from './js/template.js';
     loadHeader();
   </script>
 
-  <!-- 🔽 Konten profil -->
+  <!-- ✅ Konten Profil -->
   <div class="profile-wrapper">
     <div class="profile-card">
-      <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" class="profile-avatar" alt="User" />
+      <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png"
+           class="profile-avatar" alt="User" />
       <h1>Profil Pengguna</h1>
       <p id="user-email">Memuat email...</p>
 
@@ -37,7 +40,18 @@
     </div>
   </div>
 
-  <!-- 🔚 Script login -->
+  <!-- ✅ Toast (opsional, jika kamu pakai showToast) -->
+  <div id="toast" class="toast"></div>
+  <script>
+    window.showToast = function(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 3000);
+    };
+  </script>
+
+  <!-- ✅ Logika Firebase -->
   <script type="module" src="js/profile.js"></script>
 </body>
 </html>
