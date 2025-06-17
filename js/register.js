@@ -11,40 +11,41 @@ registerBtn.addEventListener("click", async () => {
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirm-password").value;
 
-  // Validasi wajib isi
   if (!email || !password || !confirmPassword) {
-    alert("Semua kolom wajib diisi.");
+    showToast("Semua kolom wajib diisi.");
     return;
   }
 
-  // ✅ Validasi format email
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    alert("Format email tidak valid.");
+    showToast("Format email tidak valid.");
     return;
   }
 
-  // Validasi panjang kata sandi
   if (password.length < 6) {
-    alert("Kata sandi minimal 6 karakter.");
+    showToast("Kata sandi minimal 6 karakter.");
     return;
   }
 
-  // Validasi konfirmasi kata sandi
   if (password !== confirmPassword) {
-    alert("Kata sandi tidak cocok.");
+    showToast("Kata sandi tidak cocok.");
     return;
   }
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
-    // ✅ Kirim email verifikasi
     await sendEmailVerification(userCredential.user);
-    alert("Pendaftaran berhasil! Cek email Anda untuk verifikasi.");
-
-    // Arahkan ke login
-    window.location.href = "login.html";
+    showToast("Pendaftaran berhasil! Cek email Anda untuk verifikasi.");
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1500);
   } catch (error) {
-    alert("Gagal daftar: " + error.message);
+    if (error.code === "auth/email-already-in-use") {
+      showToast("Email sudah terdaftar. Silakan login.");
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 1500);
+    } else {
+      showToast("Gagal daftar: " + error.message);
+    }
   }
 });
