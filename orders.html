@@ -1,73 +1,108 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesanan Saya | Tokoku</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/orders.css">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pesanan Saya</title>
+  <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <!-- TEMPAT HEADER -->
+  <!-- Header template -->
   <div id="header-placeholder"></div>
+<script type="module">
+  import { loadHeader } from './js/template.js';
+  loadHeader();
+</script>
+   <!-- Main content -->  
+   <main>
+    <h2>Pesanan Saya</h2>
+    <div id="orders-container">Memuat pesanan...</div>
+  </main>  <!-- Script Firebase Orders -->  <script type="module">
+    import { auth, db } from "./js/auth-firebase.js";
+    import {
+      collection,
+      query,
+      where,
+      getDocs,
+      doc,
+      updateDoc,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <!-- KONTEN UTAMA (TIDAK BERUBAH) -->
-  <main class="order-container">
-    <h1><i class="fas fa-clipboard-list"></i> Daftar Pesanan</h1>
-    
-    <div class="order-filters">
-      <button class="filter-btn active" data-filter="all">Semua</button>
-      <button class="filter-btn" data-filter="pending">Diproses</button>
-      <button class="filter-btn" data-filter="shipped">Dikirim</button>
-      <button class="filter-btn" data-filter="completed">Selesai</button>
-    </div>
-
-    <div class="orders-list" id="ordersList">
-      <!-- Konten pesanan akan dimuat di sini -->
-    </div>
-  </main>
-
-  <!-- NOTIFIKASI -->
-  <div id="notification" class="notification">
-    <i class="fas fa-check-circle"></i>
-    <span id="notification-message"></span>
-  </div>
-
-  <!-- LOAD SCRIPTS -->
-  <script src="js/orders.js"></script>
-  
-  <!-- LOAD HEADER + SET ACTIVE MENU -->
-  <script>
-    // Load header
-    fetch('header.html')
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('header-placeholder').innerHTML = html;
-        
-        // Set active menu
-        const navLinks = document.querySelectorAll('.nav-icon');
-        navLinks.forEach(link => {
-          link.classList.remove('active');
-          if (link.getAttribute('href').includes('orders.html')) {
-            link.classList.add('active');
-          }
-        });
-        
-        // Update cart badge
-        updateCartBadge();
-      })
-      .catch(err => console.error('Gagal load header:', err));
-
-    function updateCartBadge() {
-      const cart = JSON.parse(localStorage.getItem('cart')) || {};
-      const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
-      const badge = document.querySelector('.cart-badge');
-      if (badge) {
-        badge.textContent = totalItems;
-        badge.style.display = totalItems > 0 ? 'block' : 'none';
+    auth.onAuthStateChanged(async (user) => {
+      const container = document.getElementById("orders-container");
+      if (!user) {
+        container.innerHTML = "<p>Silakan login untuk melihat pesanan Anda.</p>";
+        return;
       }
-    }
-  </script>
-</body>
+
+      const q = query(collection(db, "orders"), where("userId", "==", user.uid));
+      const snapshot = await getDocs(q);
+      container.innerHTML = "";
+
+      if (snapshot.empty) {
+        container.innerHTML = "<p style='color: #ccc;'>Belum ada pesanan.</p>";
+        return;
+      }
+
+      snapshot.forEach(docSnap => {
+        const order = docSnap.data();
+        const orderId = docSnap.id;
+        const estimasiTanggal = order.estimasiTanggalSampai
+          ? order.estimasiTanggalSampai.toDate().toLocaleDateString("id-ID")
+          : "-";
+
+        const card = document.createElement("div");
+        card.className = "order-card";
+        card.innerHTML = `
+          <h3>Pesanan ${orderId}</h3>
+          <p><strong>Tanggal:</strong> ${new Date(order.createdAt?.seconds * 1000).toLocaleDateString("id-ID")}</p>
+          <p><strong>Status:</strong> ${order.status || '-'}</p>
+          ${order.estimasiHari ? `<p><strong>Estimasi:</strong> ${order.estimasiHari} hari (sampai: ${estimasiTanggal})</p>` : ""}
+          <table style="margin-top: 1rem;">
+            <thead>
+              <tr>
+                <th>Produk</th>
+                <th>Jumlah</th>
+                <th>Harga</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(item => `
+                <tr>
+                  <td>${item.title}</td>
+                  <td>${item.quantity}</td>
+                  <td>Rp ${item.price.toLocaleString("id-ID")}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <p style="margin-top: 1rem;"><strong>Total:</strong> Rp ${order.total.toLocaleString("id-ID")}</p>
+          ${(order.status === 'dikirim') ? `<button onclick="konfirmasiPesanan('${orderId}')">Saya sudah terima barang</button>` : ""}
+          ${(order.status === 'diproses') ? `<button onclick="batalkanPesanan('${orderId}')" style="margin-left: 10px;">Batalkan Pesanan</button>` : ""}
+        `;
+        container.appendChild(card);
+      });
+    });
+
+    window.konfirmasiPesanan = async function(orderId) {
+      if (!confirm("Apakah Anda yakin sudah menerima pesanan ini?")) return;
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, {
+        status: "selesai",
+        selesaiAt: Timestamp.now()
+      });
+      alert("Terima kasih! Pesanan ditandai selesai.");
+      location.reload();
+    };
+
+    window.batalkanPesanan = async function(orderId) {
+      if (!confirm("Apakah Anda yakin ingin membatalkan pesanan ini?")) return;
+      const orderRef = doc(db, "orders", orderId);
+      await updateDoc(orderRef, {
+        status: "dibatalkan"
+      });
+      alert("Pesanan berhasil dibatalkan.");
+      location.reload();
+    };
+  </script></body>
 </html>

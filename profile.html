@@ -2,56 +2,30 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Profil | Tokoku</title>
-  <style>
-    body { font-family: sans-serif; background: #f0f0f0; }
-    .profile-container {
-      max-width: 500px;
-      background: white;
-      margin: 100px auto;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    button { padding: 10px 20px; background: crimson; color: white; border: none; border-radius: 5px; cursor: pointer; }
-  </style>
+  <title>Profil Saya - Tokoku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/profile.css" />
 </head>
 <body>
-  <div class="profile-container" id="profilePage" style="display: none;">
-    <h2>Profil Saya</h2>
-    <p><strong>Nama:</strong> <span id="userName">-</span></p>
-    <p><strong>Email:</strong> <span id="email">-</span></p>
-    <p><strong>Bergabung sejak:</strong> <span id="joinDate">-</span></p>
-    <button onclick="logout()">Logout</button>
+  <div class="profile-card">
+    <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" class="profile-avatar" alt="User" />
+    <h1>Profil Pengguna</h1>
+    <p id="user-email">Memuat email...</p>
+
+    <div class="action-buttons">
+      <button id="dashboard-btn" class="btn btn-dashboard" style="display: none;">📊 Dashboard Admin</button>
+      <button id="logout-btn" class="btn btn-logout" style="display: none;">🔓 Logout</button>
+    </div>
+
+    <div id="guest-buttons" style="display: none;">
+      <p class="guest-text">Anda belum login.</p>
+      <div class="guest-buttons">
+        <button onclick="window.location.href='auth/login.html'" class="btn">🔐 Login</button>
+        <button onclick="window.location.href='auth/register.html'" class="btn">📝 Daftar</button>
+      </div>
+    </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-  <script src="js/auth-firebase.js"></script>
-
-  <script>
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        alert('Anda belum login!');
-        window.location.href = "auth/login.html";
-        return;
-      }
-
-      document.getElementById("userName").textContent = user.displayName || "-";
-      document.getElementById("email").textContent = user.email;
-      document.getElementById("joinDate").textContent = new Date(user.metadata.creationTime).toLocaleDateString("id-ID");
-
-      document.getElementById("profilePage").style.display = "block";
-    });
-
-    function logout() {
-      firebase.auth().signOut().then(() => {
-        window.location.href = "auth/login.html";
-      });
-    }
-  </script>
+  <script type="module" src="js/profile.js"></script>
 </body>
 </html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout Berhasil - Tokoku</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Checkout Success Styles */
+    .success-container {
+      max-width: 600px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+      text-align: center;
+    }
+
+    .success-card {
+      background: #1e1e1e;
+      border-radius: 10px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .success-icon {
+      color: #27ae60;
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      animation: bounce 0.6s;
+    }
+
+    .success-title {
+      color: #fff;
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .success-message {
+      color: #aaa;
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .order-details {
+      background: #2a2a2a;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: left;
+    }
+
+    .detail-item {https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.  
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #333;
+    }
+
+    .detail-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .detail-label {
+      color: #aaa;
+    }
+
+    .detail-value {
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: #27ae60;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background: #2ecc71;
+    }
+
+    .btn-secondary {
+      background: #2a2a2a;
+      color: #fff;
+      border: 1px solid #333;
+    }
+
+    .btn-secondary:hover {
+      background: #333;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+      40% {transform: translateY(-20px);}
+      60% {transform: translateY(-10px);}
+    }
+
+    @media (max-width: 768px) {
+      .success-card {
+        padding: 1.5rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header Placeholder -->
+<div id="header-placeholder"></div>
+
+<!-- Main Content -->
+<main class="success-container">
+  <div class="success-card">
+    <div class="success-icon">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h1 class="success-title">Pembayaran Berhasil!</h1>
+    <p class="success-message">Terima kasih telah berbelanja di Tokoku. Pesanan Anda sedang diproses dan akan dikirim segera.</p>
+    
+    <div class="order-details">
+      <div class="detail-item">
+        <span class="detail-label">Nomor Pesanan</span>
+        <span class="detail-value" id="order-id">#TK-${Math.floor(Math.random() * 10000)}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Tanggal</span>
+        <span class="detail-value" id="order-date">${new Date().toLocaleDateString('id-ID')}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Metode Pembayaran</span>
+        <span class="detail-value" id="payment-method">Transfer Bank</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Total Pembayaran</span>
+        <span class="detail-value" id="order-total">Rp ${localStorage.getItem('lastOrderTotal') || '0'}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <a href="index.html" class="btn btn-secondary">
+        <i class="fas fa-home"></i> Kembali ke Beranda
+      </a>
+      <a href="orders.html" class="btn btn-primary">
+        <i class="fas fa-clipboard-list"></i> Lihat Pesanan
+      </a>
+    </div>
+  </div>
+</main>
+
+<script>
+// Load header
+fetch('header.html')
+  .then(response => response.text())
+  .then(data => {
+    document.getElementById('header-placeholder').innerHTML = data;
+    if (typeof updateCartBadge === 'function') {
+      updateCartBadge();
+    }
+  })
+  .catch(error => {
+    console.error('Error loading header:', error);
+    document.getElementById('header-placeholder').innerHTML = `
+      <header class="error-header">
+        <h1>Tokoku</h1>
+        <p>Gagal memuat menu navigasi</p>
+      </header>
+    `;
+  });
+
+// Simulasikan data pesanan
+document.addEventListener('DOMContentLoaded', () => {
+  // Jika tidak ada data pesanan, redirect ke halaman lain
+  if (!localStorage.getItem('lastOrderTotal')) {
+    window.location.href = 'index.html';
+  }
+  
+  // Tambahkan efek confetti untuk perayaan
+  setTimeout(() => {
+    if (typeof confetti === 'function') {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+  }, 500);
+});
+</script>
+
+<!-- Optional: Confetti JS untuk efek perayaan -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+</body>
+</html>

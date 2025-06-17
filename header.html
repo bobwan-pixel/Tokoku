@@ -1,236 +1,175 @@
-<header class="main-header">
-  <div class="header-left">
+<!DOCTYPE html><html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Header Tokoku</title>
+  <style>
+    .main-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(to right, #cccccc, #666666);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-decoration: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.nav-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: -20px;
+  background: #333;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.nav-icon:hover .tooltip {
+  opacity: 1;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4081;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: bold;
+  display: none;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  background: #1f1f1f;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  gap: 0.75rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1001;
+}
+
+.dropdown-menu.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.dropdown-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.dropdown-menu a:hover {
+  background: #333;
+}
+
+  </style>
+</head>
+<body>
+  <header class="main-header">
     <a href="index.html" class="logo">Tokoku</a>
+    <div class="header-right">
+      <a href="cart.html" class="nav-icon" style="position: relative;">
+        <img src="https://img.icons8.com/?size=100&id=2616&format=png&color=A1A1A1" alt="Keranjang" style="height: 25px; width: 25px;">
+        <span class="cart-badge" id="cart-badge">0</span>
+        <span class="tooltip">Keranjang</span>
+      </a><div class="nav-icon" id="menu-toggle">
+    <img src="https://img.icons8.com/ios-filled/50/ffffff/menu--v1.png" alt="Menu" style="height: 25px; width: 25px;">
+    <span class="tooltip">Menu</span>
   </div>
 
-  <nav class="header-right">
-<!-- Ganti bagian nav-icon profil menjadi: -->
-<a href="profile.html" class="nav-icon" id="profile-link">
-  <img src="https://img.icons8.com/?size=100&id=108652&format=png&color=A1A1A1" alt="Profil" style="height: 25px; width: 25px;">
-  <span class="tooltip">Profil</span>
-</a>
-    <a href="cart.html" class="nav-icon" style="position: relative;">
-      <img src="https://img.icons8.com/?size=100&id=2616&format=png&color=A1A1A1" alt="Keranjang" style="height: 25px; width: 25px;">
-      <span class="cart-badge" id="cart-badge">0</span>
-      <span class="tooltip">Keranjang</span>
+  <div id="dropdown-menu" class="dropdown-menu">
+    <a href="/orders.html">
+      <img src="https://img.icons8.com/?size=20&id=85157&format=png&color=ffffff"/>
+      Pesanan
     </a>
-    <a href="orders.html" class="nav-icon">
-      <img src="https://img.icons8.com/?size=100&id=4722&format=png&color=A1A1A1" alt="Pesanan" style="height: 25px; width: 25px;">
-      <span class="tooltip">Pesanan</span>
+    <a href="profile.html" id="profile-link">
+      <img src="https://img.icons8.com/ios-glyphs/20/ffffff/user--v1.png"/>
+      Profil
     </a>
-  </nav>
-</header>
+    <a href="notifikasi.html">
+      <img src="https://img.icons8.com/ios-glyphs/20/ffffff/appointment-reminders--v1.png"/>
+      Notifikasi
+    </a>
+  </div>
+</div>
 
-<style>
-  /* === Header Styles === */
-  .main-header {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-    padding: 1rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s ease;
-  }
+  </header>  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById("menu-toggle");
+      const menu = document.getElementById("dropdown-menu");
 
-  .header-left .logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(to right, #cccccc, #666666, #cccccc, #666666);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-decoration: none;
-    transition: all 0.3s ease;
-  }
+      toggle?.addEventListener("click", () => {
+        menu.classList.toggle("show");
+      });
 
-  .header-left .logo:hover {
-    opacity: 0.9;
-    text-shadow: 0 0 10px rgba(255,255,255,0.3);
-  }
+      const profileLink = document.getElementById('profile-link');
+      profileLink?.addEventListener('click', function(e) {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user?.isLoggedIn) {
+          e.preventDefault();
+          if (confirm('Anda perlu login untuk mengakses profil. Login sekarang?')) {
+            window.location.href = 'auth/login.html';
+          }
+        }
+      });
 
-  .header-right {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-  }
-
-  .nav-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    transition: transform 0.3s ease;
-    position: relative;
-  }
-
-  .nav-icon img {
-    filter: invert(80%);
-    transition: all 0.3s ease;
-  }
-
-  .nav-icon:hover {
-    transform: translateY(-3px);
-  }
-
-  .nav-icon:hover img {
-    filter: invert(100%) drop-shadow(0 0 8px rgba(98, 0, 234, 0.5));
-  }
-
-  .tooltip {
-    position: absolute;
-    bottom: -20px;
-    background: #333;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-  }
-
-  .nav-icon:hover .tooltip {
-    opacity: 1;
-  }
-
-  .cart-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ff4081;
-    color: white;
-    border-radius: 50%;
-    padding: 3px 7px;
-    font-size: 12px;
-    font-weight: bold;
-    display: none;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-  }
-
-  /* Search Bar */
-  .search-container {
-    display: flex;
-    align-items: center;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50px;
-    padding: 0.3rem 1rem;
-    margin: 0 1rem;
-    transition: all 0.3s ease;
-    flex-grow: 0.5;
-    max-width: 300px;
-  }
-
-  .search-container:focus-within {
-    background: rgba(255,255,255,0.2);
-    box-shadow: 0 0 0 2px #6200ea;
-  }
-
-  #search-input {
-    background: transparent;
-    border: none;
-    color: white;
-    width: 100%;
-    padding: 0.5rem;
-    outline: none;
-  }
-
-  #search-input::placeholder {
-    color: rgba(255,255,255,0.5);
-  }
-
-  #search-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  /* Responsif */
-  @media (max-width: 768px) {
-    .main-header {
-      padding: 0.8rem 1rem;
-      flex-wrap: wrap;
-    }
-    
-    .header-left .logo {
-      font-size: 1.5rem;
-      order: 1;
-    }
-    
-    .search-container {
-      order: 3;
-      width: 100%;
-      max-width: 100%;
-      margin: 0.5rem 0 0 0;
-    }
-    
-    .header-right {
-      order: 2;
-      gap: 1rem;
-    }
-    
-    .nav-icon img {
-      width: 20px;
-      height: 20px;
-    }
-  }
-</style>
-
-<script>
-  // Efek scroll header
-  window.addEventListener('scroll', () => {
-    const header = document.querySelector('.main-header');
-    header.classList.toggle('header-scrolled', window.scrollY > 50);
-  });
-
-  // Active state navigation
-  document.addEventListener('DOMContentLoaded', () => {
-    const currentPage = location.pathname.split('/').pop();
-    document.querySelectorAll('.nav-icon').forEach(icon => {
-      if (icon.getAttribute('href') === currentPage) {
-        icon.querySelector('img').style.filter = 'invert(100%)';
-      }
+      updateCartBadge();
     });
-    
-    // Update cart badge
-    updateCartBadge();
-  });
 
-  function updateCartBadge() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || {};
-    const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
-    const badge = document.getElementById('cart-badge');
-    
-    if (badge) {
-      badge.textContent = totalItems;
-      badge.style.display = totalItems > 0 ? 'block' : 'none';
-    }
-  }
-</script>
-
-<script>
-  // Pastikan ini ada di script header
-  document.getElementById('profile-link')?.addEventListener('click', function(e) {
-    const user = JSON.parse(localStorage.getItem('user'));
-    
-    // Cek apakah user sudah login
-    if (!user?.isLoggedIn) {
-      e.preventDefault(); // Stop navigasi default
-      if (confirm('Anda perlu login untuk mengakses profil. Login sekarang?')) {
-        window.location.href = 'auth/login.html';
+    function updateCartBadge() {
+      const cart = JSON.parse(localStorage.getItem('cart')) || {};
+      const totalItems = Object.values(cart).reduce((a, b) => a + b, 0);
+      const badge = document.getElementById('cart-badge');
+      if (badge) {
+        badge.textContent = totalItems;
+        badge.style.display = totalItems > 0 ? 'block' : 'none';
       }
     }
-    // Jika sudah login, biarkan link bekerja normal
-  });
-</script>
+  </script></body>
+</html>
