@@ -1,13 +1,18 @@
-// auth-firebase.js — versi browser untuk GitHub Pages
+// auth-firebase.js
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDrOB-lOThEqwIwUCAeS5NyV38cL-STbWY",
-  authDomain: "tokoku-73806.firebaseapp.com",
-  projectId: "tokoku-73806",
-  storageBucket: "tokoku-73806.appspot.com",
-  messagingSenderId: "110914597418",
-  appId: "1:110914597418:web:ad975d7fa0ce38afe2c953",
-  measurementId: "G-PVMHN2E1VZ"
+  apiKey: "AIzaSyDA5lWSrkpCC7NmViHqrWz0CwatY-fPGXk",
+  authDomain: "tokoku-1.firebaseapp.com",
+  projectId: "tokoku-1",
+  storageBucket: "tokoku-1.appspot.com",
+  messagingSenderId: "101943300569",
+  appId: "1:101943300569:web:82a89c9d9a4ee6c4f589c8",
+  measurementId: "G-MJW8D76BW5"
 };
 
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
