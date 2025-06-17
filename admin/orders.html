@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,10 +21,12 @@
         </tr>
       </thead>
       <tbody id="orderTableBody">
-        <!-- Daftar pesanan akan dimuat lewat JS -->
+        <!-- Data pesanan dimuat dari JS -->
       </tbody>
     </table>
-  </div>  <script type="module">
+  </div>
+
+  <script type="module">
     import { db } from "../js/auth-firebase.js";
     import {
       collection,
@@ -34,71 +37,79 @@
       Timestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener("DOMContentLoaded", () => {
       loadAllOrders();
     });
 
     async function loadAllOrders() {
-      const tbody = document.getElementById('orderTableBody');
-      tbody.innerHTML = '';
+      const tbody = document.getElementById("orderTableBody");
+      tbody.innerHTML = "";
 
-      const snapshot = await getDocs(collection(db, "orders"));
-      snapshot.forEach(docSnap => {
-        const order = docSnap.data();
-        const orderId = docSnap.id;
+      try {
+        const snapshot = await getDocs(collection(db, "orders"));
+        snapshot.forEach(docSnap => {
+          const order = docSnap.data();
+          const orderId = docSnap.id;
 
-        if (order.status === "dibatalkan") return; // Jangan tampilkan pesanan dibatalkan
+          if (order.status === "dibatalkan") return;
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${orderId}</td>
-          <td>${order.userEmail}</td>
-          <td>Rp ${order.total.toLocaleString('id-ID')}</td>
-          <td>
-            <select data-id="${orderId}" class="status-dropdown">
-              <option value="diproses" ${order.status === 'diproses' ? 'selected' : ''}>Diproses</option>
-              <option value="dikirim" ${order.status === 'dikirim' ? 'selected' : ''}>Dikirim</option>
-              <option value="selesai" ${order.status === 'selesai' ? 'selected' : ''}>Selesai</option>
-            </select>
-          </td>
-          <td>
-            <input type="number" min="1" placeholder="Hari" class="estimasi-input" data-id="${orderId}" style="width:60px;" value="${order.estimasiHari || ''}" ${order.status !== 'dikirim' ? 'disabled' : ''}>
-          </td>
-          <td>
-            <button class="cancel-btn" data-id="${orderId}">Batalkan</button>
-            <button class="delete-btn" data-id="${orderId}" style="margin-left: 5px;">Hapus</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
+          const userEmail = order.userEmail || order.customer?.email || "-";
 
-      document.querySelectorAll('.status-dropdown').forEach(select => {
-        select.addEventListener('change', handleStatusChange);
-      });
-
-      document.querySelectorAll('.cancel-btn').forEach(button => {
-        button.addEventListener('click', async (e) => {
-          const orderId = e.target.dataset.id;
-          if (confirm("Yakin ingin membatalkan pesanan ini?")) {
-            const orderRef = doc(db, "orders", orderId);
-            await updateDoc(orderRef, { status: "dibatalkan" });
-            alert("Pesanan dibatalkan.");
-            loadAllOrders();
-          }
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${orderId}</td>
+            <td>${userEmail}</td>
+            <td>Rp ${order.total.toLocaleString("id-ID")}</td>
+            <td>
+              <select data-id="${orderId}" class="status-dropdown">
+                <option value="diproses" ${order.status === "diproses" ? "selected" : ""}>Diproses</option>
+                <option value="dikirim" ${order.status === "dikirim" ? "selected" : ""}>Dikirim</option>
+                <option value="selesai" ${order.status === "selesai" ? "selected" : ""}>Selesai</option>
+              </select>
+            </td>
+            <td>
+              <input type="number" min="1" placeholder="Hari" class="estimasi-input" data-id="${orderId}" style="width:60px;"
+                value="${order.estimasiHari || ''}" ${order.status !== "dikirim" ? "disabled" : ""}>
+            </td>
+            <td>
+              <button class="cancel-btn" data-id="${orderId}">Batalkan</button>
+              <button class="delete-btn" data-id="${orderId}" style="margin-left: 5px;">Hapus</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
         });
-      });
 
-      document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', async (e) => {
-          const orderId = e.target.dataset.id;
-          if (confirm("Yakin ingin menghapus pesanan ini secara permanen?")) {
-            const orderRef = doc(db, "orders", orderId);
-            await deleteDoc(orderRef);
-            alert("Pesanan dihapus.");
-            loadAllOrders();
-          }
+        // Tambahkan listener
+        document.querySelectorAll(".status-dropdown").forEach(select => {
+          select.addEventListener("change", handleStatusChange);
         });
-      });
+
+        document.querySelectorAll(".cancel-btn").forEach(button => {
+          button.addEventListener("click", async e => {
+            const orderId = e.target.dataset.id;
+            if (confirm("Yakin ingin membatalkan pesanan ini?")) {
+              const ref = doc(db, "orders", orderId);
+              await updateDoc(ref, { status: "dibatalkan" });
+              alert("Pesanan dibatalkan.");
+              loadAllOrders();
+            }
+          });
+        });
+
+        document.querySelectorAll(".delete-btn").forEach(button => {
+          button.addEventListener("click", async e => {
+            const orderId = e.target.dataset.id;
+            if (confirm("Yakin ingin menghapus pesanan ini secara permanen?")) {
+              const ref = doc(db, "orders", orderId);
+              await deleteDoc(ref);
+              alert("Pesanan dihapus.");
+              loadAllOrders();
+            }
+          });
+        });
+      } catch (err) {
+        alert("Gagal memuat pesanan: " + err.message);
+      }
     }
 
     async function handleStatusChange(e) {
@@ -106,24 +117,22 @@
       const newStatus = e.target.value;
       const orderRef = doc(db, "orders", orderId);
 
-      const tr = e.target.closest('tr');
-      const estimasiInput = tr.querySelector('.estimasi-input');
+      const tr = e.target.closest("tr");
+      const estimasiInput = tr.querySelector(".estimasi-input");
 
       let updateData = { status: newStatus };
 
       if (newStatus === "dikirim") {
         const estimasiHari = parseInt(prompt("Masukkan estimasi berapa hari pesanan sampai?", "3"));
-        if (!isNaN(estimasiHari) && estimasiHari > 0) {
+        if (Number.isInteger(estimasiHari) && estimasiHari > 0) {
           const estimasiTanggal = new Date();
           estimasiTanggal.setDate(estimasiTanggal.getDate() + estimasiHari);
           updateData.estimasiHari = estimasiHari;
           updateData.estimasiTanggalSampai = Timestamp.fromDate(estimasiTanggal);
-          if (estimasiInput) {
-            estimasiInput.value = estimasiHari;
-            estimasiInput.disabled = false;
-          }
+          estimasiInput.value = estimasiHari;
+          estimasiInput.disabled = false;
         } else {
-          alert("Estimasi tidak valid. Dibatalkan.");
+          alert("Estimasi tidak valid.");
           return;
         }
       } else {
@@ -131,7 +140,8 @@
       }
 
       await updateDoc(orderRef, updateData);
-      alert('Status dan estimasi diperbarui!');
+      alert("Status & estimasi diperbarui!");
     }
-  </script></body>
+  </script>
+</body>
 </html>
