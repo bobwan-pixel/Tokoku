@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kelola Produk - Admin Tokoku</title>
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+
+<!-- Header -->
+<div id="header-placeholder"></div>
+<script type="module">
+  import { loadHeader } from "../js/template.js";
+  loadHeader();
+</script>
+
+<main class="admin-container">
+  <h1><i class="fas fa-box"></i> Daftar Produk</h1>
+  <button class="btn-primary" onclick="location.href='add-product.html'">
+    <i class="fas fa-plus"></i> Tambah Produk
+  </button>
+
+  <div id="product-list" class="product-grid">
+    Memuat produk...
+  </div>
+</main>
+
+<script type="module">
+  import { auth, db } from "../js/auth-firebase.js";
+  import {
+    collection,
+    getDocs,
+    deleteDoc,
+    doc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const adminEmail = "terepandu@gmail.com";
+
+  auth.onAuthStateChanged(async (user) => {
+    if (!user || user.email !== adminEmail) {
+      alert("Akses ditolak! Halaman ini hanya untuk admin.");
+      window.location.href = "../index.html";
+      return;
+    }
+
+    const productList = document.getElementById("product-list");
+    const snapshot = await getDocs(collection(db, "products"));
+    productList.innerHTML = "";
+
+    if (snapshot.empty) {
+      productList.innerHTML = "<p>Tidak ada produk ditemukan.</p>";
+      return;
+    }
+
+    snapshot.forEach(docSnap => {
+      const product = docSnap.data();
+      const id = docSnap.id;
+
+      const card = document.createElement("div");
+      card.className = "product-card";
+      card.innerHTML = `
+        <img src="${product.image}" alt="${product.title}" />
+        <div class="info">
+          <h3>${product.title}</h3>
+          <p>Rp ${product.price.toLocaleString('id-ID')}</p>
+        </div>
+        <div class="actions">
+          <button onclick="editProduct('${id}')"><i class="fas fa-edit"></i></button>
+          <button onclick="deleteProduct('${id}')"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      `;
+      productList.appendChild(card);
+    });
+  });
+
+  window.editProduct = function(id) {
+    window.location.href = `edit-product.html?id=${id}`;
+  };
+
+  window.deleteProduct = async function(id) {
+    if (confirm("Yakin ingin menghapus produk ini?")) {
+      await deleteDoc(doc(db, "products", id));
+      alert("Produk berhasil dihapus.");
+      location.reload();
+    }
+  };
+</script>
+
+</body>
+</html>

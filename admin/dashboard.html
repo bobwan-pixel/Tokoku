@@ -1,19 +1,116 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Dashboard - Tokoku</title>
-  <link rel="stylesheet" href="../css/admin.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <title>Dashboard Admin - Tokoku</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: #ddd;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    main.admin-dashboard {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #4db8ff;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stats-container {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      flex: 1 1 280px;
+      background: #1e1e1e;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .stat-card i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #4db8ff;
+    }
+
+    .stat-card h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+      color: #eee;
+    }
+
+    .stat-card p {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .action-card {
+      flex: 1 1 280px;
+      background: #222;
+      padding: 1.5rem;
+      text-align: center;
+      border-radius: 10px;
+      text-decoration: none;
+      color: #fff;
+      transition: background 0.3s;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    .action-card i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .action-card:hover {
+      background: #4db8ff;
+      color: #000;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+      .stat-card p {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <!-- Header dinamis -->
+
+  <!-- Header -->
   <div id="header-placeholder"></div>
 
-  <!-- Konten dashboard -->
+  <!-- Konten -->
   <main class="admin-dashboard">
     <h1><i class="fas fa-tachometer-alt"></i> Dashboard Admin</h1>
-    
+
     <div class="stats-container">
       <div class="stat-card">
         <i class="fas fa-shopping-cart"></i>
@@ -22,7 +119,7 @@
       </div>
       <div class="stat-card">
         <i class="fas fa-users"></i>
-        <h3>Total User</h3>
+        <h3>Total Pengguna</h3>
         <p id="totalUsers">0</p>
       </div>
     </div>
@@ -39,31 +136,39 @@
     </div>
   </main>
 
-  <!-- ✅ Firebase Auth check & Header load -->
+  <!-- Script -->
   <script type="module">
-    import { auth } from "../js/auth-firebase.js";
+    import { auth, db } from "../js/auth-firebase.js";
+    import {
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { loadHeader } from "../js/template.js";
 
     const adminEmail = "terepandu@gmail.com";
 
-    // Cek login dan hanya admin boleh akses
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user || user.email !== adminEmail) {
         alert("Akses ditolak! Halaman ini hanya untuk admin.");
         window.location.href = "../index.html";
+        return;
+      }
+
+      // Load Header
+      loadHeader();
+
+      try {
+        const ordersSnap = await getDocs(collection(db, "orders"));
+        const usersSnap = await getDocs(collection(db, "users"));
+
+        document.getElementById("totalOrders").textContent = ordersSnap.size;
+        document.getElementById("totalUsers").textContent = usersSnap.size;
+      } catch (err) {
+        console.error("❌ Gagal mengambil data statistik:", err);
       }
     });
-
-    // Load header
-    import { loadHeader } from "../js/template.js";
-    loadHeader();
-
-    // Statistik dummy sementara
-    const orders = JSON.parse(localStorage.getItem('tokoku_orders') || '[]');
-    const users = JSON.parse(localStorage.getItem('tokoku_users') || '[]');
-
-    document.getElementById('totalOrders').textContent = orders.length;
-    document.getElementById('totalUsers').textContent = users.length;
   </script>
+
 </body>
 </html>
