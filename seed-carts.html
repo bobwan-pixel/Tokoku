@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seed Keranjang</title>
+</head>
+<body style="font-family: sans-serif; padding: 2rem; background: #111; color: #fff;">
+
+  <h2>Seed Keranjang ke Firestore</h2>
+  <p>Menambahkan keranjang untuk user tertentu (UID tetap).</p>
+
+  <button id="seed-cart-btn" style="padding: 1rem; font-size: 1rem;">Tambah Cart ke Firestore</button>
+
+  <pre id="result" style="margin-top: 1.5rem; background: #222; padding: 1rem; border-radius: 8px;"></pre>
+
+  <!-- Firebase SDK & Logic -->
+  <script type="module">
+    import { db } from './js/auth-firebase.js';
+    import { doc, setDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Ganti UID user target di sini
+    const uid = "DnxOh8QCtYPdj05aZkme6oMf6Ig1";
+
+    // Daftar item keranjang yang ingin dimasukkan
+    const cartItems = [
+      { productId: "Vvk33NEYhktslB856BBu", quantity: 2 },
+      { productId: "YQZFtU46UM8TNkUG4onQ", quantity: 1 },
+      { productId: "gi64CZkFsV3AcKnLIMOy", quantity: 3 },
+      { productId: "lFFtuS1WZebEKrJjoDIL", quantity: 1 }
+    ];
+
+    async function seedCart() {
+      const resultBox = document.getElementById('result');
+      try {
+        const cartRef = doc(db, "carts", uid);
+        await setDoc(cartRef, {
+          userId: uid,
+          items: cartItems,
+          updatedAt: Timestamp.now()
+        });
+        resultBox.textContent = "✅ Berhasil menambahkan keranjang ke Firestore!";
+      } catch (error) {
+        console.error(error);
+        resultBox.textContent = "❌ Gagal: " + error.message;
+      }
+    }
+
+    document.getElementById('seed-cart-btn').addEventListener('click', seedCart);
+  </script>
+
+</body>
+</html>
