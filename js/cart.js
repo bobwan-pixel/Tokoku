@@ -1,178 +1,182 @@
-// ===== GLOBAL VARIABLES =====
-let cart = JSON.parse(localStorage.getItem('cart')) || {};
+// js/cart.js
+import { db, auth } from './auth-firebase.js';
+import {
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ===== NOTIFICATION SYSTEM =====
-function showNotification(message, isSuccess = true) {
-  const notification = document.createElement('div');
-  notification.className = `notification ${isSuccess ? 'success' : 'error'}`;
-  notification.innerHTML = `
-    <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-    <span>${message}</span>
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.classList.add('show');
-  }, 10);
-  
-  setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
-}
+const cartContent = document.getElementById('cart-content');
+const summaryContainer = document.getElementById('cart-summary-container');
+const cartMain = document.getElementById('cart-main');
 
-// ===== CART OPERATIONS =====
-function updateCart() {
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartBadge();
-}
-
-function addToCart(productId) {
-  if (!products.find(p => p.id == productId)) {
-    showNotification('Produk tidak ditemukan', false);
-    return;
-  }
-
-  cart[productId] = (cart[productId] || 0) + 1;
-  updateCart();
-  showNotification('Produk ditambahkan ke keranjang');
-}
-
-function removeFromCart(productId, completely = false) {
-  if (!cart[productId]) return;
-
-  if (completely || cart[productId] <= 1) {
-    const productName = getProductName(productId);
-    delete cart[productId];
-    updateCart();
-    showNotification(`${productName} dihapus dari keranjang`);
-  } else {
-    cart[productId]--;
-    updateCart();
-  }
-}
-
-// ===== HELPER FUNCTIONS =====
-function getProductName(productId) {
-  const product = products.find(p => p.id == productId);
-  return product ? product.title : 'Produk';
-}
-
-function updateCartBadge() {
-  const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  const badge = document.getElementById('cart-badge');
-  
-  if (badge) {
-    badge.textContent = totalItems;
-    badge.style.display = totalItems > 0 ? 'inline-block' : 'none';
-  }
-}
-
-function renderCartItems() {
-  const cartTableBody = document.querySelector('#cart-table tbody');
-  
-  if (!cartTableBody) return;
-
-  if (Object.keys(cart).length === 0) {
-    cartTableBody.innerHTML = `
-      <tr>
-        <td colspan="4" class="empty-cart-message">
-          <i class="fas fa-shopping-cart"></i>
-          <p>Keranjang belanja kosong</p>
-        </td>
-      </tr>
+function showSkeletonLoader() {
+    const itemsLoader = `
+      <div class="cart-items-list">
+          ${Array(3).fill(0).map(() => `
+              <div class="cart-item">
+                  <div class="item-image skeleton"></div>
+                  <div class="item-details" style="flex-grow:1;">
+                      <h4 class="skeleton" style="height:24px; width:70%; border-radius:4px;"></h4>
+                      <p class="skeleton" style="height:18px; width:40%; border-radius:4px;"></p>
+                  </div>
+              </div>
+          `).join('')}
+      </div>
     `;
+    const summaryLoader = `
+      <div class="cart-summary">
+           <h3 class="summary-title skeleton" style="height:36px; width:80%; border-radius:4px;"></h3>
+           <div class="summary-line skeleton" style="height:24px; width:100%; border-radius:4px; margin-bottom: 1rem;"></div>
+           <div class="summary-line skeleton" style="height:24px; width:100%; border-radius:4px;"></div>
+           <button class="checkout-btn" disabled>Memuat...</button>
+      </div>
+    `;
+    cartContent.innerHTML = itemsLoader;
+    summaryContainer.innerHTML = summaryLoader;
+}
+
+async function renderCart(user) {
+  const cartRef = doc(db, "carts", user.uid);
+  const [cartSnap, productSnap] = await Promise.all([
+      getDoc(cartRef),
+      getDocs(collection(db, "products"))
+  ]);
+
+  const productMap = {};
+  productSnap.forEach(p => {
+    productMap[p.id] = { id: p.id, ...p.data() };
+  });
+
+  const items = cartSnap.exists() ? cartSnap.data().items || [] : [];
+
+  if (!Array.isArray(items) || items.length === 0) {
+    cartMain.innerHTML = `
+      <div class="empty-cart">
+          <i class="fas fa-shopping-cart"></i>
+          <p>Keranjang belanja Anda masih kosong.</p>
+          <a href="index.html" class="shop-now-btn">Mulai Belanja</a>
+      </div>`;
     return;
   }
 
-  cartTableBody.innerHTML = Object.keys(cart).map(productId => {
-    const product = products.find(p => p.id == productId);
-    if (!product) return '';
-    
-    const quantity = cart[productId];
-    const total = product.price * quantity;
+  let subtotal = 0;
+  let totalItems = 0;
+  let itemsHtml = '<div class="cart-items-list">';
 
-    return `
-      <tr>
-        <td>${product.title}</td>
-        <td>Rp ${product.price.toLocaleString('id-ID')}</td>
-        <td>
+  items.forEach(item => {
+    const product = productMap[item.productId];
+    if (!product) return;
+
+    const itemTotal = item.quantity * product.price;
+    subtotal += itemTotal;
+    totalItems += item.quantity;
+
+    itemsHtml += `
+      <div class="cart-item">
+        <img src="${product.image || 'img/placeholder.png'}" alt="${product.title}" class="item-image">
+        <div class="item-details">
+          <h4>${product.title}</h4>
+          <p>Rp ${product.price.toLocaleString("id-ID")}</p>
+        </div>
+        <div class="item-controls">
           <div class="quantity-control">
-            <button class="quantity-btn decrease" data-id="${productId}">-</button>
-            <span>${quantity}</span>
-            <button class="quantity-btn increase" data-id="${productId}">+</button>
-            <button class="remove-btn" data-id="${productId}" title="Hapus">
-              <i class="fas fa-trash-alt"></i>
+            <button class="quantity-btn decrease" data-id="${item.productId}" title="Kurangi">
+              <i class="fas fa-minus"></i>
+            </button>
+            <span>${item.quantity}</span>
+            <button class="quantity-btn increase" data-id="${item.productId}" title="Tambah">
+              <i class="fas fa-plus"></i>
             </button>
           </div>
-        </td>
-        <td>Rp ${total.toLocaleString('id-ID')}</td>
-      </tr>
+           <button class="remove-btn" data-id="${item.productId}" title="Hapus Item">
+              <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+        <div class="item-subtotal">
+           <strong>Rp ${itemTotal.toLocaleString("id-ID")}</strong>
+        </div>
+      </div>
     `;
-  }).join('');
+  });
+  itemsHtml += '</div>';
+
+  const shipping = 5000;
+  const total = subtotal + shipping;
+
+  const summaryHtml = `
+    <div class="cart-summary">
+      <h3 class="summary-title">Ringkasan Belanja</h3>
+      <div class="summary-line">
+          <span>Subtotal (${totalItems} produk)</span>
+          <span>Rp ${subtotal.toLocaleString("id-ID")}</span>
+      </div>
+      <div class="summary-line">
+          <span>Ongkos Kirim</span>
+          <span>Rp ${shipping.toLocaleString("id-ID")}</span>
+      </div>
+      <div class="summary-total">
+          <span>Total</span>
+          <span>Rp ${total.toLocaleString("id-ID")}</span>
+      </div>
+      <button class="checkout-btn" onclick="window.location.href='checkout.html'">
+          Lanjut ke Pembayaran
+      </button>
+    </div>
+  `;
+
+  cartContent.innerHTML = itemsHtml;
+  summaryContainer.innerHTML = summaryHtml;
 }
 
-// ===== EVENT HANDLERS =====
-function handleCartActions(e) {
-  const target = e.target.closest('.quantity-btn') || e.target.closest('.remove-btn');
-  if (!target) return;
+async function updateCartItem(productId, action) {
+  const user = auth.currentUser;
+  if (!user) return;
 
-  const productId = target.getAttribute('data-id');
-  if (!productId) return;
+  const cartRef = doc(db, "carts", user.uid);
+  const snap = await getDoc(cartRef);
+  let items = snap.exists() ? snap.data().items || [] : [];
+  const index = items.findIndex(i => i.productId === productId);
+  if (index === -1) return;
 
-  if (target.classList.contains('increase')) {
-    addToCart(productId);
-    renderCartItems();
-  } 
-  else if (target.classList.contains('decrease')) {
-    removeFromCart(productId);
-    renderCartItems();
-  }
-  else if (target.classList.contains('remove-btn')) {
-    if (confirm(`Hapus ${getProductName(productId)} dari keranjang?`)) {
-      removeFromCart(productId, true);
-      renderCartItems();
+  if (action === "increase") {
+    items[index].quantity++;
+  } else if (action === "decrease") {
+    if (items[index].quantity > 1) {
+      items[index].quantity--;
+    } else {
+      items.splice(index, 1);
     }
+  } else if (action === "remove") {
+    items.splice(index, 1);
   }
+
+  await setDoc(cartRef, { items }, { merge: true });
+  renderCart(user);
 }
 
-function handleAddToCartButtons(e) {
-  if (e.target.classList.contains('btn-add-cart')) {
-    const productId = e.target.getAttribute('data-id');
-    addToCart(productId);
-  }
-}
-
-function handleCheckoutButton(e) {
-  if (e.target.id === 'checkout-btn' || e.target.closest('#checkout-btn')) {
-    e.preventDefault();
-    goToCheckout();
-  }
-}
-
-// ===== CHECKOUT FUNCTION =====
-function goToCheckout() {
-  if (Object.keys(cart).length === 0) {
-    showNotification('Keranjang belanja kosong!', false);
+auth.onAuthStateChanged(user => {
+  if (!user) {
+    cartMain.innerHTML = "<p style='color:white; text-align:center;'>Silakan login untuk melihat keranjang Anda.</p>";
     return;
   }
-  
-  // Debugging
-  console.log('Redirecting to checkout...');
-  console.log('Current cart:', cart);
-  
-  window.location.href = 'checkout.html';
-}
 
-// ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize cart UI
-  renderCartItems();
-  updateCartBadge();
+  showSkeletonLoader();
+  renderCart(user);
 
-  // Event listeners
-  document.addEventListener('click', handleCartActions);
-  document.addEventListener('click', handleAddToCartButtons);
-  document.addEventListener('click', handleCheckoutButton);
+  cartMain.addEventListener("click", e => {
+    const btn = e.target.closest("button[data-id]");
+    if (!btn) return;
+
+    const productId = btn.dataset.id;
+    if (btn.classList.contains("increase")) {
+      updateCartItem(productId, "increase");
+    } else if (btn.classList.contains("decrease")) {
+      updateCartItem(productId, "decrease");
+    } else if (btn.classList.contains("remove-btn")) {
+      updateCartItem(productId, "remove");
+    }
+  });
 });
