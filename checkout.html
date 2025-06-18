@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Checkout - Tokoku</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/checkout.css">
@@ -10,88 +10,49 @@
 </head>
 <body>
 
-<!-- Header Placeholder -->
+<!-- Header -->
 <div id="header-placeholder"></div>
+<script type="module">
+  import { loadHeader } from './js/template.js';
+  loadHeader();
+</script>
 
-<!-- Main Checkout Content -->
+<!-- Main -->
 <main class="checkout-container">
-  <!-- Checkout Form -->
   <div class="checkout-form">
     <section class="checkout-section">
-      <h2 class="section-title"><i class="fas fa-user"></i> Informasi Pelanggan</h2>
-      <div class="form-group">
-        <label class="form-label" for="name">Nama Lengkap</label>
-        <input type="text" class="form-control" id="name" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="email">Email</label>
-        <input type="email" class="form-control" id="email" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="phone">Nomor Telepon</label>
-        <input type="tel" class="form-control" id="phone" required>
-      </div>
+      <h2><i class="fas fa-user"></i> Informasi Pelanggan</h2>
+      <input type="text" id="name" placeholder="Nama Lengkap" required />
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="tel" id="phone" placeholder="Nomor Telepon" required />
     </section>
 
     <section class="checkout-section">
-      <h2 class="section-title"><i class="fas fa-truck"></i> Alamat Pengiriman</h2>
-      <div class="form-group">
-        <label class="form-label" for="address">Alamat Lengkap</label>
-        <textarea class="form-control" id="address" rows="3" required></textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="city">Kota</label>
-        <input type="text" class="form-control" id="city" required>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="postal">Kode Pos</label>
-        <input type="text" class="form-control" id="postal" required>
-      </div>
+      <h2><i class="fas fa-map-marker-alt"></i> Alamat Pengiriman</h2>
+      <textarea id="address" placeholder="Alamat Lengkap" required></textarea>
+      <input type="text" id="city" placeholder="Kota" required />
+      <input type="text" id="postal" placeholder="Kode Pos" required />
     </section>
 
     <section class="checkout-section">
-      <h2 class="section-title"><i class="fas fa-credit-card"></i> Metode Pembayaran</h2>
-      <div class="payment-method" data-method="bank-transfer">
-        <i class="fas fa-university payment-icon"></i>
-        <span>Transfer Bank</span>
-      </div>
-      <div class="payment-method" data-method="credit-card">
-        <i class="far fa-credit-card payment-icon"></i>
-        <span>Kartu Kredit/Debit</span>
-      </div>
-      <div class="payment-method" data-method="ewallet">
-        <i class="fas fa-wallet payment-icon"></i>
-        <span>E-Wallet</span>
-      </div>
+      <h2><i class="fas fa-credit-card"></i> Metode Pembayaran</h2>
+      <div class="payment-method" data-method="bank-transfer">Transfer Bank</div>
+      <div class="payment-method" data-method="credit-card">Kartu Kredit</div>
+      <div class="payment-method" data-method="ewallet">E-Wallet</div>
     </section>
   </div>
 
-  <!-- Order Summary -->
   <div class="order-summary">
-    <section class="checkout-section">
-      <h2 class="section-title"><i class="fas fa-receipt"></i> Ringkasan Pesanan</h2>
-      <div id="order-items">
-        <!-- Order items will be loaded here -->
-      </div>
-      <div class="order-item">
-        <span>Subtotal</span>
-        <span id="subtotal">Rp 0</span>
-      </div>
-      <div class="order-item">
-        <span>Ongkir</span>
-        <span id="shipping">Rp 15.000</span>
-      </div>
-      <div class="order-item order-total">
-        <span>Total</span>
-        <span id="total">Rp 0</span>
-      </div>
-      <button class="submit-btn" id="place-order">
-        <i class="fas fa-shopping-bag"></i> Pesan Sekarang
-      </button>
-    </section>
+    <h2><i class="fas fa-receipt"></i> Ringkasan Pesanan</h2>
+    <div id="order-items">Memuat...</div>
+    <div class="order-item"><span>Subtotal</span><span id="subtotal">Rp 0</span></div>
+    <div class="order-item"><span>Ongkir</span><span id="shipping">Rp 15.000</span></div>
+    <div class="order-item"><span>Total</span><span id="total">Rp 0</span></div>
+    <button id="place-order" class="submit-btn"><i class="fas fa-shopping-bag"></i> Pesan Sekarang</button>
   </div>
 </main>
 
-<script src="js/checkout.js"></script>
+<!-- JS -->
+<script type="module" src="js/checkout.js"></script>
 </body>
 </html>

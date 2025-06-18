@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Notifikasi</title>
+  <style>
+    /* RESET dasar */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body */
+    body {
+      font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+      background-color: #111;
+      color: #eee;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* === Header Styles === */
+    .main-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .header-left .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #cccccc, #666666, #cccccc, #666666);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .header-left .logo:hover {
+      opacity: 0.9;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    /* Main content */
+    main {
+      flex-grow: 1; /* Allow main content to take up available space */
+      padding: 2rem;
+      max-width: 1200px; /* sedikit diperbesar biar space lebih lega */
+      margin: auto;
+    }
+
+    /* Section judul */
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.6rem;
+      border-bottom: 2px solid #444;
+      padding-bottom: 0.7rem;
+      color: #f5f5f5; /* Ensure visibility in dark theme */
+      text-align: center; /* Center the title */
+    }
+
+    /* Notifikasi List */
+    #notif-list {
+      margin-top: 1.5rem;
+    }
+
+    /* Notifikasi Item (based on .order-card) */
+    .notif-item {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      color: #ddd;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .notif-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    }
+
+    .notif-item p {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #ccc;
+    }
+
+    /* Placeholder messages */
+    #notif-list p {
+      text-align: center;
+      color: #aaa;
+      font-size: 1.1rem;
+      padding: 1.5rem;
+      background-color: #1a1a1a;
+      border-radius: 8px;
+      margin-top: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      main {
+        padding: 1rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+      }
+      .notif-item {
+        padding: 0.8rem;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-header {
+        padding: 0.8rem 1rem;
+      }
+      .header-left .logo {
+        font-size: 1.5rem;
+      }
+      main {
+        padding: 0.5rem;
+      }
+      .notif-item p {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="main-header">
+    <div class="header-left">
+      <a href="#" class="logo">Notifikasi Aplikasi</a>
+    </div>
+    <div class="header-right">
+      </div>
+  </header>
+
+  <main>
+    <h2>Notifikasi Anda</h2>
+    <div id="notif-list">Memuat notifikasi...</div>
+  </main>
+
+  <script type="module">
+    // *** Penting: Ganti placeholder ini dengan konfigurasi Firebase Anda yang sebenarnya ***
+    // Anda bisa mendapatkan ini dari pengaturan proyek Firebase Anda (Project settings -> Your apps)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Impor modul Firebase langsung dari CDN
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const list = document.getElementById('notif-list');
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        list.innerHTML = "<p>Silakan login untuk melihat notifikasi Anda.</p>";
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, 'notifications', user.uid));
+        if (!snap.exists() || !snap.data().items?.length) {
+          list.innerHTML = "<p>Tidak ada notifikasi saat ini.</p>";
+          return;
+        }
+
+        const items = snap.data().items;
+        // Memastikan item memiliki properti 'message' dan menampilkan setiap notifikasi dalam div .notif-item
+        list.innerHTML = items.map(item => `<div class="notif-item"><p>${item.message}</p></div>`).join('');
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+        list.innerHTML = "<p>Terjadi kesalahan saat memuat notifikasi. Silakan coba lagi nanti.</p>";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,108 +1,43 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pesanan Saya</title>
+  <title>Pesanan Saya - Tokoku</title>
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/orders.css" />
 </head>
 <body>
-  <!-- Header template -->
-  <div id="header-placeholder"></div>
+
+<div id="header-placeholder"></div>
 <script type="module">
   import { loadHeader } from './js/template.js';
   loadHeader();
 </script>
-   <!-- Main content -->  
-   <main>
-    <h2>Pesanan Saya</h2>
-    <div id="orders-container">Memuat pesanan...</div>
-  </main>  <!-- Script Firebase Orders -->  <script type="module">
-    import { auth, db } from "./js/auth-firebase.js";
-    import {
-      collection,
-      query,
-      where,
-      getDocs,
-      doc,
-      updateDoc,
-      Timestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    auth.onAuthStateChanged(async (user) => {
-      const container = document.getElementById("orders-container");
-      if (!user) {
-        container.innerHTML = "<p>Silakan login untuk melihat pesanan Anda.</p>";
-        return;
-      }
+<main class="order-page-main">
+  <div class="order-container">
+    <h1><i class="fas fa-box-open"></i> Pesanan Saya</h1>
 
-      const q = query(collection(db, "orders"), where("userId", "==", user.uid));
-      const snapshot = await getDocs(q);
-      container.innerHTML = "";
+    <div class="order-filters">
+      <button class="filter-btn active" data-status="all"><i class="fas fa-list-alt"></i> Semua</button>
+      <button class="filter-btn" data-status="diproses"><i class="fas fa-hourglass-half"></i> Diproses</button>
+      <button class="filter-btn" data-status="dikirim"><i class="fas fa-truck"></i> Dikirim</button>
+      <button class="filter-btn" data-status="selesai"><i class="fas fa-check-circle"></i> Selesai</button>
+      <button class="filter-btn" data-status="dibatalkan"><i class="fas fa-times-circle"></i> Dibatalkan</button>
+    </div>
 
-      if (snapshot.empty) {
-        container.innerHTML = "<p style='color: #ccc;'>Belum ada pesanan.</p>";
-        return;
-      }
+    <div id="orders-list-container">
+      <div class="empty-state" id="loading-state">
+        <i class="fas fa-spinner fa-spin"></i>
+        <h3>Memuat pesanan Anda...</h3>
+      </div>
+    </div>
+  </div>
+</main>
 
-      snapshot.forEach(docSnap => {
-        const order = docSnap.data();
-        const orderId = docSnap.id;
-        const estimasiTanggal = order.estimasiTanggalSampai
-          ? order.estimasiTanggalSampai.toDate().toLocaleDateString("id-ID")
-          : "-";
+<script type="module" src="js/orders.js"></script>
 
-        const card = document.createElement("div");
-        card.className = "order-card";
-        card.innerHTML = `
-          <h3>Pesanan ${orderId}</h3>
-          <p><strong>Tanggal:</strong> ${new Date(order.createdAt?.seconds * 1000).toLocaleDateString("id-ID")}</p>
-          <p><strong>Status:</strong> ${order.status || '-'}</p>
-          ${order.estimasiHari ? `<p><strong>Estimasi:</strong> ${order.estimasiHari} hari (sampai: ${estimasiTanggal})</p>` : ""}
-          <table style="margin-top: 1rem;">
-            <thead>
-              <tr>
-                <th>Produk</th>
-                <th>Jumlah</th>
-                <th>Harga</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${order.items.map(item => `
-                <tr>
-                  <td>${item.title}</td>
-                  <td>${item.quantity}</td>
-                  <td>Rp ${item.price.toLocaleString("id-ID")}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-          <p style="margin-top: 1rem;"><strong>Total:</strong> Rp ${order.total.toLocaleString("id-ID")}</p>
-          ${(order.status === 'dikirim') ? `<button onclick="konfirmasiPesanan('${orderId}')">Saya sudah terima barang</button>` : ""}
-          ${(order.status === 'diproses') ? `<button onclick="batalkanPesanan('${orderId}')" style="margin-left: 10px;">Batalkan Pesanan</button>` : ""}
-        `;
-        container.appendChild(card);
-      });
-    });
-
-    window.konfirmasiPesanan = async function(orderId) {
-      if (!confirm("Apakah Anda yakin sudah menerima pesanan ini?")) return;
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, {
-        status: "selesai",
-        selesaiAt: Timestamp.now()
-      });
-      alert("Terima kasih! Pesanan ditandai selesai.");
-      location.reload();
-    };
-
-    window.batalkanPesanan = async function(orderId) {
-      if (!confirm("Apakah Anda yakin ingin membatalkan pesanan ini?")) return;
-      const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, {
-        status: "dibatalkan"
-      });
-      alert("Pesanan berhasil dibatalkan.");
-      location.reload();
-    };
-  </script></body>
+</body>
 </html>

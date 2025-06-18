@@ -1,57 +1,75 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>Profil Saya - Tokoku</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="css/profile.css" />
+  <meta charset="UTF-8">
+  <title>Profil Pengguna - TokoKu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/profile.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <!-- ✅ Header -->
+  <!-- Header -->
   <div id="header-placeholder"></div>
 
-  <!-- ✅ Muat header dari template.js -->
   <script type="module">
     import { loadHeader } from './js/template.js';
     loadHeader();
   </script>
 
-  <!-- ✅ Konten Profil -->
+  <!-- Konten Profil -->
   <div class="profile-wrapper">
     <div class="profile-card">
-      <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png"
-           class="profile-avatar" alt="User" />
-      <h1>Profil Pengguna</h1>
-      <p id="user-email">Memuat email...</p>
-
-      <div class="action-buttons">
-        <button id="dashboard-btn" class="btn btn-dashboard" style="display: none;">📊 Dashboard Admin</button>
-        <button id="logout-btn" class="btn btn-logout" style="display: none;">🔓 Logout</button>
+      <!-- Foto Profil -->
+      <div class="avatar-container">
+        <img src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" 
+             class="profile-avatar" alt="Foto Profil" id="profile-avatar">
+        <label for="avatar-input" class="avatar-edit-btn">
+          <i class="fas fa-camera"></i>
+        </label>
+        <input type="file" id="avatar-input" accept="image/*" hidden>
       </div>
 
-      <!-- Jika belum login -->
-      <div id="guest-buttons" style="display: none;">
-        <p class="guest-text">Anda belum login.</p>
-        <div class="guest-buttons">
-          <button onclick="window.location.href='auth/login.html'" class="btn">🔐 Login</button>
-          <button onclick="window.location.href='auth/register.html'" class="btn">📝 Daftar</button>
+      <h1>Profil Pengguna</h1>
+      <p id="user-email"><i class="fas fa-envelope"></i> Memuat email...</p>
+
+      <!-- Progress Kelengkapan Profil -->
+      <div class="profile-completion">
+        <p>Kelengkapan Profil: <span id="completion-percent">0%</span></p>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Tombol Aksi -->
+      <div class="action-buttons">
+        <button id="dashboard-btn" class="btn btn-dashboard">
+          <i class="fas fa-tachometer-alt"></i> Dashboard Admin
+        </button>
+        <button id="logout-btn" class="btn btn-logout">
+          <i class="fas fa-sign-out-alt"></i> Keluar
+        </button>
+      </div>
+
+      <!-- Tampilan untuk Pengunjung -->
+      <div id="guest-buttons" class="guest-section">
+        <p class="guest-message">
+          <i class="fas fa-exclamation-circle"></i> Anda belum masuk
+        </p>
+        <div class="guest-actions">
+          <button onclick="window.location.href='auth/login.html'" class="btn btn-login">
+            <i class="fas fa-sign-in-alt"></i> Masuk
+          </button>
+          <button onclick="window.location.href='auth/register.html'" class="btn btn-register">
+            <i class="fas fa-user-plus"></i> Daftar
+          </button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ✅ Toast (opsional, jika kamu pakai showToast) -->
-  <div id="toast" class="toast"></div>
-  <script>
-    window.showToast = function(message) {
-      const toast = document.getElementById("toast");
-      toast.textContent = message;
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 3000);
-    };
-  </script>
+  <!-- Notifikasi -->
+  <div id="toast" class="toast-notification"></div>
 
-  <!-- ✅ Logika Firebase -->
   <script type="module" src="js/profile.js"></script>
 </body>
 </html>
