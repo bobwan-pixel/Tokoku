@@ -1,20 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Seed eBooks</title>
+  <title>Upload 3 eBook ke Firebase</title>
 </head>
 <body>
-  <h2>Upload 3 eBook ke Firebase</h2>
-  <button id="seedBtn">Seed eBooks</button>
+  <h2>Upload 3 eBook Sekaligus</h2>
+  <form id="upload-form">
+    <div class="ebook-block" data-index="0">
+      <h3>eBook 1</h3>
+      Judul: <input type="text" name="title" required><br>
+      Cover: <input type="file" name="cover" accept="image/*" required><br>
+      PDF: <input type="file" name="pdf" accept="application/pdf" required><br><br>
+    </div>
+    <div class="ebook-block" data-index="1">
+      <h3>eBook 2</h3>
+      Judul: <input type="text" name="title" required><br>
+      Cover: <input type="file" name="cover" accept="image/*" required><br>
+      PDF: <input type="file" name="pdf" accept="application/pdf" required><br><br>
+    </div>
+    <div class="ebook-block" data-index="2">
+      <h3>eBook 3</h3>
+      Judul: <input type="text" name="title" required><br>
+      Cover: <input type="file" name="cover" accept="image/*" required><br>
+      PDF: <input type="file" name="pdf" accept="application/pdf" required><br><br>
+    </div>
+    <button type="submit">Upload Semua Sekaligus</button>
+  </form>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-    // GANTI DENGAN KONFIGURASI FIREBASE KAMU
-    const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyDA5lWSrkpCC7NmViHqrWz0CwatY-fPGXk",
   authDomain: "tokoku-1.firebaseapp.com",
   projectId: "tokoku-1",
@@ -23,58 +42,49 @@
   appId: "1:101943300569:web:82a89c9d9a4ee6c4f589c8",
   measurementId: "G-MJW8D76BW5"
 };
-    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    document.getElementById("seedBtn").addEventListener("click", async () => {
-      const ebooks = [
-        {
-          title: "As Good as Dead",
-          coverPath: "asset/ebook1.jpg",
-          filePath: "ebook/ebook1.pdf"
-        },
-        {
-          title: "How to Make a Girl Chase You",
-          coverPath: "asset/ebook2.jpg",
-          filePath: "ebook/ebook2.pdf"
-        },
-        {
-          title: "Nightfall (Devil's Night #5)",
-          coverPath: "asset/ebook3.jpg",
-          filePath: "ebook/ebook3.pdf"
-        }
-      ];
+    document.getElementById("upload-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const blocks = document.querySelectorAll(".ebook-block");
 
-      for (const ebook of ebooks) {
-        try {
-          const coverRes = await fetch(ebook.coverPath);
-          const coverBlob = await coverRes.blob();
-          const coverRef = ref(storage, `ebooks/covers/${Date.now()}_${ebook.coverPath.split("/").pop()}`);
-          await uploadBytes(coverRef, coverBlob);
-          const coverUrl = await getDownloadURL(coverRef);
+      const uploadPromises = Array.from(blocks).map(async (block) => {
+        const title = block.querySelector('input[name="title"]').value;
+        const coverFile = block.querySelector('input[name="cover"]').files[0];
+        const pdfFile = block.querySelector('input[name="pdf"]').files[0];
 
-          const fileRes = await fetch(ebook.filePath);
-          const fileBlob = await fileRes.blob();
-          const fileRef = ref(storage, `ebooks/files/${Date.now()}_${ebook.filePath.split("/").pop()}`);
-          await uploadBytes(fileRef, fileBlob);
-          const fileUrl = await getDownloadURL(fileRef);
+        if (!title || !coverFile || !pdfFile) throw new Error("Data eBook tidak lengkap");
 
-          await addDoc(collection(db, "ebooks"), {
-            title: ebook.title,
-            cover: coverUrl,
-            file: fileUrl
-          });
+        const timestamp = Date.now();
 
-          console.log(`✅ ${ebook.title} berhasil diupload.`);
-        } catch (err) {
-          console.error(`❌ Gagal upload ${ebook.title}:`, err);
-        }
+        // Upload cover
+        const coverRef = ref(storage, `ebooks/covers/${timestamp}_${coverFile.name}`);
+        const coverSnap = await uploadBytes(coverRef, coverFile);
+        const coverUrl = await getDownloadURL(coverSnap.ref);
+
+        // Upload PDF
+        const pdfRef = ref(storage, `ebooks/files/${timestamp}_${pdfFile.name}`);
+        const pdfSnap = await uploadBytes(pdfRef, pdfFile);
+        const pdfUrl = await getDownloadURL(pdfSnap.ref);
+
+        // Simpan ke Firestore
+        return addDoc(collection(db, "ebooks"), {
+          title,
+          cover: coverUrl,
+          file: pdfUrl
+        });
+      });
+
+      try {
+        await Promise.all(uploadPromises);
+        alert("✅ Semua eBook berhasil diupload sekaligus ke Firestore!");
+      } catch (err) {
+        console.error(err);
+        alert("❌ Gagal mengupload: " + err.message);
       }
-
-      alert("✅ Semua eBook berhasil diunggah!");
     });
   </script>
 </body>
