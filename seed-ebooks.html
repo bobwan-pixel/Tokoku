@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Seed eBooks</title>
+</head>
+<body>
+  <h2>Upload 3 eBook ke Firebase</h2>
+  <button id="seedBtn">Seed eBooks</button>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    // GANTI DENGAN KONFIGURASI FIREBASE KAMU
+    const firebaseConfig = {
+  apiKey: "AIzaSyDA5lWSrkpCC7NmViHqrWz0CwatY-fPGXk",
+  authDomain: "tokoku-1.firebaseapp.com",
+  projectId: "tokoku-1",
+  storageBucket: "tokoku-1.appspot.com",
+  messagingSenderId: "101943300569",
+  appId: "1:101943300569:web:82a89c9d9a4ee6c4f589c8",
+  measurementId: "G-MJW8D76BW5"
+};
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    document.getElementById("seedBtn").addEventListener("click", async () => {
+      const ebooks = [
+        {
+          title: "As Good as Dead",
+          coverPath: "asset/ebook1.jpg",
+          filePath: "ebook/ebook1.pdf"
+        },
+        {
+          title: "How to Make a Girl Chase You",
+          coverPath: "asset/ebook2.jpg",
+          filePath: "ebook/ebook2.pdf"
+        },
+        {
+          title: "Nightfall (Devil's Night #5)",
+          coverPath: "asset/ebook3.jpg",
+          filePath: "ebook/ebook3.pdf"
+        }
+      ];
+
+      for (const ebook of ebooks) {
+        try {
+          const coverRes = await fetch(ebook.coverPath);
+          const coverBlob = await coverRes.blob();
+          const coverRef = ref(storage, `ebooks/covers/${Date.now()}_${ebook.coverPath.split("/").pop()}`);
+          await uploadBytes(coverRef, coverBlob);
+          const coverUrl = await getDownloadURL(coverRef);
+
+          const fileRes = await fetch(ebook.filePath);
+          const fileBlob = await fileRes.blob();
+          const fileRef = ref(storage, `ebooks/files/${Date.now()}_${ebook.filePath.split("/").pop()}`);
+          await uploadBytes(fileRef, fileBlob);
+          const fileUrl = await getDownloadURL(fileRef);
+
+          await addDoc(collection(db, "ebooks"), {
+            title: ebook.title,
+            cover: coverUrl,
+            file: fileUrl
+          });
+
+          console.log(`✅ ${ebook.title} berhasil diupload.`);
+        } catch (err) {
+          console.error(`❌ Gagal upload ${ebook.title}:`, err);
+        }
+      }
+
+      alert("✅ Semua eBook berhasil diunggah!");
+    });
+  </script>
+</body>
+</html>
